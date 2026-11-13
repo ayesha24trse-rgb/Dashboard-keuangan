@@ -1,1925 +1,1532 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Keuangan Usaha Gorengan — Real-Time & Input Harian</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-    <!-- SheetJS (XLSX) CDN untuk Import & Export Excel -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-    <!-- Font Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
-            color: #0f172a;
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-        .slicer-btn-active {
-            background-color: #1e3a8a;
-            color: #ffffff;
-            border-color: #1e3a8a;
-        }
-        .slicer-btn-inactive {
-            background-color: #ffffff;
-            color: #334155;
-            border-color: #cbd5e1;
-        }
-        .slicer-btn-inactive:hover {
-            background-color: #f8fafc;
-            border-color: #94a3b8;
-        }
-        @keyframes slideInToast {
-            from { transform: translateY(16px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .toast-enter {
-            animation: slideInToast 0.25s ease-out forwards;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catatan Keuangan Usaha Gorengan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg-page: #F7F5F2;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F0EDE8;
+      --border-soft: #E5E0D8;
+      --text-primary: #1E242B;
+      --text-secondary: #5C6570;
+      --text-muted: #8A939E;
+      --accent-green: #1B6B50;
+      --accent-green-light: #E8F3EE;
+      --accent-green-hover: #14533E;
+      --accent-amber: #C27828;
+      --accent-amber-light: #FDF3E7;
+      --accent-slate: #334155;
+      --danger: #B91C1C;
+      --danger-light: #FEF2F2;
+      --shadow-sm: 0 2px 8px rgba(30, 36, 43, 0.04);
+      --shadow-md: 0 6px 20px rgba(30, 36, 43, 0.06);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      line-height: 1.55;
+      font-size: 16px;
+      padding-bottom: 60px;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Top Header */
+    .topbar {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-soft);
+      padding: 18px 0;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .topbar-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #1B6B50 0%, #268968 100%);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+
+    .brand-text h1 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+
+    .brand-text p {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .topbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-soft);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .btn:hover {
+      background: var(--bg-subtle);
+    }
+
+    .btn-primary {
+      background: var(--accent-green);
+      color: #FFFFFF;
+      border-color: var(--accent-green);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-green-hover);
+      border-color: var(--accent-green-hover);
+    }
+
+    /* Section Spacing */
+    .section {
+      margin-top: 26px;
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .section-subtitle {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    /* Quick Entry Card (Unique & Easy for Ibu) */
+    .quick-entry-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quick-entry-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: var(--accent-green);
+    }
+
+    .entry-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr 1.3fr auto;
+      gap: 18px;
+      align-items: end;
+      margin-top: 14px;
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .input-control {
+      width: 100%;
+      height: 48px;
+      padding: 0 14px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      background: var(--bg-page);
+      border: 1.5px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      transition: border-color 0.15s ease;
+    }
+
+    .input-control:focus {
+      outline: none;
+      border-color: var(--accent-green);
+      background: #FFFFFF;
+    }
+
+    .stepper-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-step {
+      height: 48px;
+      min-width: 52px;
+      padding: 0 12px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border-soft);
+      background: var(--bg-subtle);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-step:hover {
+      background: #E2DDD4;
+    }
+
+    .live-preview-box {
+      background: var(--accent-green-light);
+      border: 1px solid #C6E2D6;
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .live-preview-box span {
+      font-size: 14px;
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    .live-preview-box strong {
+      font-size: 18px;
+      color: var(--accent-green);
+      font-weight: 800;
+    }
+
+    .btn-save-large {
+      height: 48px;
+      padding: 0 24px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+    }
+
+    .settings-bar {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border-soft);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .inline-setting {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .inline-setting input {
+      width: 115px;
+      height: 34px;
+      padding: 0 10px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      background: var(--bg-page);
+      color: var(--text-primary);
+    }
+
+    /* Filter Slicer Pills */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-card);
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill-btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: var(--bg-page);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .pill-btn:hover {
+      border-color: var(--accent-green);
+      color: var(--text-primary);
+    }
+
+    .pill-btn.active {
+      background: var(--text-primary);
+      color: #FFFFFF;
+      border-color: var(--text-primary);
+    }
+
+    .day-select {
+      height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: var(--bg-page);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    /* Z-Pattern KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi-card.highlight {
+      background: linear-gradient(160deg, #1B6B50 0%, #165640 100%);
+      color: #FFFFFF;
+      border-color: #1B6B50;
+    }
+
+    .kpi-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .kpi-card.highlight .kpi-label {
+      color: #CBE7DC;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .kpi-note {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .kpi-card.highlight .kpi-note {
+      color: #A7D7C5;
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 18px;
+    }
+
+    .card-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      margin-bottom: 16px;
+    }
+
+    .card-header h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .card-header p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 270px;
+      width: 100%;
+    }
+
+    /* Insight Banner */
+    .insight-strip {
+      background: var(--accent-amber-light);
+      border: 1px solid #F3DEC2;
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14.5px;
+      color: #6E4212;
+    }
+
+    .insight-strip strong {
+      font-weight: 700;
+      color: #4A2B09;
+    }
+
+    /* Table Section */
+    .table-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .search-input {
+      height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 14px;
+      background: var(--bg-page);
+      min-width: 240px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--border-soft);
+      background: var(--bg-page);
+    }
+
+    td {
+      padding: 14px;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 15px;
+      color: var(--text-primary);
+    }
+
+    tr:hover td {
+      background-color: #FAF8F5;
+    }
+
+    .badge-day {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+    }
+
+    .text-profit {
+      color: var(--accent-green);
+      font-weight: 700;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-mini {
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
+      background: #FFFFFF;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-mini.edit:hover {
+      background: var(--accent-amber-light);
+      border-color: var(--accent-amber);
+      color: var(--accent-amber);
+    }
+
+    .btn-mini.del:hover {
+      background: var(--danger-light);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--text-primary);
+      color: #FFFFFF;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s ease;
+      z-index: 100;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 900px) {
+      .entry-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .entry-grid {
+        grid-template-columns: 1fr;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+      .kpi-value {
+        font-size: 23px;
+      }
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-    <!-- ==================== HEADER BAR (Z-PATTERN TOP) ==================== -->
-    <header class="bg-[#1e293b] text-white shadow-md sticky top-0 z-30">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3.5 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3.5">
-            <!-- Judul, Ikon & Badge Status Real-Time -->
-            <div class="flex items-start sm:items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
-                    <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-                    </svg>
-                </div>
-                <div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <h1 class="text-base sm:text-xl font-extrabold tracking-tight text-white">DASHBOARD KEUANGAN USAHA GORENGAN</h1>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Tersimpan Otomatis • Real-Time
-                        </span>
-                    </div>
-                    <p id="header-subtitle" class="text-xs sm:text-sm text-slate-300 mt-0.5">
-                        Periode 13 Agustus – 12 November 2026 (92 Hari Operasional) • Harga Default Rp1.000/biji • Modal Default Rp200.000/hari
-                    </p>
-                </div>
-            </div>
-
-            <!-- Tombol Aksi Utama Header -->
-            <div class="flex flex-wrap items-center gap-2">
-                <!-- Tombol Utama: + Input Penjualan -->
-                <button onclick="openInputModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    <span>+ Input Penjualan</span>
-                </button>
-
-                <!-- Tombol Import Excel -->
-                <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" onchange="handleExcelImport(event)" class="hidden">
-                <button onclick="document.getElementById('excel-file-input').click()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium bg-slate-700 hover:bg-slate-600 text-slate-100 border border-slate-600 transition cursor-pointer">
-                    <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                    </svg>
-                    <span>Import Excel</span>
-                </button>
-
-                <!-- Tombol Export Excel -->
-                <button onclick="exportToExcel()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium bg-slate-700 hover:bg-slate-600 text-slate-100 border border-slate-600 transition cursor-pointer">
-                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>
-                    <span>Export Excel</span>
-                </button>
-
-                <!-- Tombol Simulasi What-If -->
-                <button onclick="toggleSimPanel()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium bg-slate-700 hover:bg-slate-600 text-slate-100 border border-slate-600 transition cursor-pointer">
-                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-                    </svg>
-                    <span>Simulasi What-If</span>
-                </button>
-
-                <!-- Tombol Reset Awal -->
-                <button onclick="openResetConfirmModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium bg-slate-800 hover:bg-rose-900/50 text-slate-300 hover:text-rose-200 border border-slate-600 transition cursor-pointer" title="Kembalikan data ke 92 hari awal dari Excel">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                    </svg>
-                    <span>Reset Awal</span>
-                </button>
-            </div>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="brand-badge">Rp</div>
+        <div class="brand-text">
+          <h1>Catatan Keuangan Gorengan</h1>
+          <p>Ringkasan untung, modal, dan penjualan harian usaha Anda</p>
         </div>
-
-        <!-- Panel Simulasi What-If (Collapsible dengan Slider) -->
-        <div id="sim-panel" class="hidden bg-slate-800/95 border-t border-slate-700">
-            <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div class="flex flex-wrap items-center gap-6">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Simulasi Proyeksi (What-If):</span>
-                    </div>
-
-                    <!-- Slider Harga Jual -->
-                    <div class="flex items-center gap-3">
-                        <label for="sim-harga-range" class="text-xs text-slate-300 whitespace-nowrap">
-                            Harga Jual: <strong id="sim-harga-display" class="text-white">Rp1.000</strong>/biji
-                        </label>
-                        <input type="range" id="sim-harga-range" min="500" max="3000" step="100" value="1000" oninput="onSimulationSliderChange()" class="w-32 sm:w-40 accent-emerald-500 cursor-pointer">
-                    </div>
-
-                    <!-- Slider Modal Harian -->
-                    <div class="flex items-center gap-3">
-                        <label for="sim-modal-range" class="text-xs text-slate-300 whitespace-nowrap">
-                            Modal Harian: <strong id="sim-modal-display" class="text-white">Rp200.000</strong>
-                        </label>
-                        <input type="range" id="sim-modal-range" min="100000" max="500000" step="10000" value="200000" oninput="onSimulationSliderChange()" class="w-32 sm:w-40 accent-amber-500 cursor-pointer">
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between lg:justify-end gap-4">
-                    <span id="sim-status-badge" class="text-xs text-slate-400">Menampilkan angka aktual tersimpan</span>
-                    <button onclick="resetSimulation()" class="text-xs font-semibold text-amber-400 hover:text-amber-300 underline cursor-pointer">Reset Simulasi</button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- ==================== MAIN CONTAINER ==================== -->
-    <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-
-        <!-- ==================== BARIS 1 Z-PATTERN: SLICERS (KIRI) + 5 KPI CARDS (KANAN) ==================== -->
-        <section class="grid grid-cols-1 xl:grid-cols-12 gap-4 items-stretch">
-            
-            <!-- PANEL FILTER / SLICER (4 Kolom) -->
-            <div class="xl:col-span-4 bg-white rounded-xl shadow-sm border border-slate-200/80 p-4 flex flex-col justify-between gap-3">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-[#1e3a8a]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                        </svg>
-                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Slicer & Filter Data</h2>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="resetFiltersOnly()" class="text-[11px] font-medium text-slate-500 hover:text-[#1e3a8a] underline cursor-pointer">Reset Filter</button>
-                        <span id="active-filter-count" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-[#1e3a8a]">92 Hari Terpilih</span>
-                    </div>
-                </div>
-
-                <!-- Slicer Bulan Dinamis -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Periode Bulan (Multi-Pilih)</label>
-                    <div id="month-slicers" class="flex flex-wrap gap-1.5">
-                        <!-- Diisi otomatis oleh JS berdasarkan bulan yang tersedia -->
-                    </div>
-                </div>
-
-                <!-- Slicer Hari -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Hari Operasional (Multi-Pilih)</label>
-                    <div id="day-slicers" class="flex flex-wrap gap-1">
-                        <button type="button" data-day="ALL" onclick="toggleDaySlicer('ALL')" class="slicer-btn-active px-2 py-1 rounded-lg text-xs font-medium border transition cursor-pointer">Semua</button>
-                        <button type="button" data-day="Senin" onclick="toggleDaySlicer('Senin')" class="slicer-btn-inactive px-2 py-1 rounded-lg text-xs font-medium border transition cursor-pointer">Sen</button>
-                        <button type="button" data-day="Selasa" onclick="toggleDaySlicer('Selasa')" class="slicer-btn-inactive px-2 py-1 rounded-lg text-xs font-medium border transition cursor-pointer">Sel</button>
-                        <button type="button" data-day="Rabu" onclick="toggleDaySlicer('Rabu')" class="slicer-btn-inactive px-2 py-1 rounded-lg text-xs font-medium border transition cursor-pointer">Rab</button>
-                        <button type="button" data-day="Kamis" onclick="toggleDaySlicer('Kamis')" class="slicer-btn-inactive px-2 py-1 rounded-lg text-xs font-medium border transition cursor-pointer">Kam</button>
-                        <button type="button" data-day="Jumat" onclick="toggleDaySlicer('Jumat')" class="slicer-btn-inactive px-2 py-1 rounded-lg text-xs font-medium border transition cursor-pointer">Jum</button>
-                        <button type="button" data-day="Sabtu" onclick="toggleDaySlicer('Sabtu')" class="slicer-btn-inactive px-2 py-1 rounded-lg text-xs font-medium border transition cursor-pointer">Sab</button>
-                        <button type="button" data-day="Minggu" onclick="toggleDaySlicer('Minggu')" class="slicer-btn-inactive px-2 py-1 rounded-lg text-xs font-medium border transition cursor-pointer">Min</button>
-                    </div>
-                </div>
-
-                <!-- Filter Rentang Tanggal -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Rentang Tanggal</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="date" id="date-start" onchange="onDateRangeChange()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-700 focus:outline-none focus:border-[#1e3a8a]">
-                        <input type="date" id="date-end" onchange="onDateRangeChange()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-700 focus:outline-none focus:border-[#1e3a8a]">
-                    </div>
-                </div>
-            </div>
-
-            <!-- 5 KARTU KPI UTAMA (8 Kolom) -->
-            <div class="xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-                
-                <!-- KPI 1: TOTAL PEMASUKAN -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-4 flex flex-col justify-between hover:shadow-md transition">
-                    <div class="flex items-start justify-between gap-2">
-                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Pemasukan</span>
-                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#1e3a8a] flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="my-2">
-                        <div id="kpi-pemasukan" class="text-xl lg:text-[19px] xl:text-xl font-extrabold text-[#1e3a8a] tracking-tight">Rp50.309.000</div>
-                    </div>
-                    <div id="kpi-pemasukan-sub" class="text-[11px] text-slate-500 leading-snug border-t border-slate-100 pt-2">
-                        92 hari • Rata-rata Rp546.837/hari
-                    </div>
-                </div>
-
-                <!-- KPI 2: TOTAL UNTUNG BERSIH -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 border-t-4 border-t-emerald-500 p-4 flex flex-col justify-between hover:shadow-md transition">
-                    <div class="flex items-start justify-between gap-2">
-                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Untung Bersih</span>
-                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="my-2">
-                        <div id="kpi-untung" class="text-xl lg:text-[19px] xl:text-xl font-extrabold text-emerald-600 tracking-tight">Rp31.909.000</div>
-                    </div>
-                    <div id="kpi-untung-sub" class="text-[11px] text-slate-500 leading-snug border-t border-slate-100 pt-2">
-                        Margin <span class="font-semibold text-emerald-600">63,4%</span> • Rp346.837/hari
-                    </div>
-                </div>
-
-                <!-- KPI 3: TOTAL MODAL -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-4 flex flex-col justify-between hover:shadow-md transition">
-                    <div class="flex items-start justify-between gap-2">
-                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Modal</span>
-                        <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="my-2">
-                        <div id="kpi-modal" class="text-xl lg:text-[19px] xl:text-xl font-extrabold text-slate-800 tracking-tight">Rp18.400.000</div>
-                    </div>
-                    <div id="kpi-modal-sub" class="text-[11px] text-slate-500 leading-snug border-t border-slate-100 pt-2">
-                        Rata-rata Rp200.000/hr • ROI <span class="font-semibold text-emerald-600">173,4%</span>
-                    </div>
-                </div>
-
-                <!-- KPI 4: TOTAL GORENGAN TERJUAL -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-4 flex flex-col justify-between hover:shadow-md transition">
-                    <div class="flex items-start justify-between gap-2">
-                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Gorengan Terjual</span>
-                        <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="my-2">
-                        <div id="kpi-terjual" class="text-xl lg:text-[19px] xl:text-xl font-extrabold text-slate-800 tracking-tight">50.309 biji</div>
-                    </div>
-                    <div id="kpi-terjual-sub" class="text-[11px] text-slate-500 leading-snug border-t border-slate-100 pt-2">
-                        Rata-rata 547 biji/hari • BEP 200 biji
-                    </div>
-                </div>
-
-                <!-- KPI 5: RATA-RATA UNTUNG/HARI + MINI SPARKLINE -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-4 flex flex-col justify-between hover:shadow-md transition sm:col-span-2 lg:col-span-1">
-                    <div class="flex items-start justify-between gap-2">
-                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Rata-Rata Untung/Hari</span>
-                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="my-1">
-                        <div id="kpi-avg-untung" class="text-xl lg:text-[19px] xl:text-xl font-extrabold text-slate-800 tracking-tight">Rp346.837</div>
-                    </div>
-                    <div class="w-full h-6 my-0.5">
-                        <svg id="kpi-sparkline" class="w-full h-full overflow-visible" viewBox="0 0 120 28" preserveAspectRatio="none"></svg>
-                    </div>
-                    <div id="kpi-avg-untung-sub" class="text-[11px] text-slate-500 leading-snug border-t border-slate-100 pt-1.5">
-                        Tertinggi Rp399.000 • Terendah Rp304.000
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- ==================== BARIS 2 Z-PATTERN: TREN HARIAN (KIRI) & PERFORMA BULANAN (KANAN) ==================== -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            
-            <!-- KIRI (7 Kolom): Grafik Garis Tren Harian -->
-            <div class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200/80 p-5 flex flex-col">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                    <div>
-                        <h3 id="trend-chart-title" class="text-sm sm:text-base font-bold text-slate-800 uppercase tracking-tight">TREN PEMASUKAN, UNTUNG & MODAL HARIAN</h3>
-                        <p id="trend-chart-subtitle" class="text-xs text-slate-500 mt-0.5">Fluktuasi harian pendapatan kotor, laba bersih, dan modal operasional</p>
-                    </div>
-                    <div class="inline-flex rounded-lg bg-slate-100 p-1 self-start sm:self-auto border border-slate-200">
-                        <button id="btn-trend-daily" onclick="setTrendMode('daily')" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-white text-[#1e3a8a] shadow-sm transition cursor-pointer">
-                            Harian
-                        </button>
-                        <button id="btn-trend-cumulative" onclick="setTrendMode('cumulative')" class="px-3 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
-                            Akumulasi Untung Berjalan
-                        </button>
-                    </div>
-                </div>
-                <div class="relative flex-1 min-h-[300px] sm:min-h-[330px] w-full">
-                    <canvas id="trendChart"></canvas>
-                </div>
-            </div>
-
-            <!-- KANAN (5 Kolom): Grafik Batang Perbandingan Bulanan -->
-            <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200/80 p-5 flex flex-col">
-                <div class="mb-3">
-                    <h3 class="text-sm sm:text-base font-bold text-slate-800 uppercase tracking-tight">PERBANDINGAN PERFORMA BULANAN</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Pemasukan, Untung Bersih & Modal beserta persentase kontribusi laba</p>
-                </div>
-                <div class="relative flex-1 min-h-[240px] sm:min-h-[260px] w-full">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
-                <div id="monthly-summary-cards" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-slate-100">
-                    <!-- Kartu persentase kontribusi diisi oleh JS -->
-                </div>
-            </div>
-
-        </section>
-
-        <!-- ==================== BARIS 3 Z-PATTERN: DISTRIBUSI HARI (KIRI) & TABEL DATA LENGKAP (KANAN) ==================== -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            
-            <!-- KIRI (5 Kolom): Distribusi Penjualan & Untung per Hari dalam Seminggu -->
-            <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200/80 p-5 flex flex-col">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-                    <div>
-                        <h3 id="day-chart-title" class="text-sm sm:text-base font-bold text-slate-800 uppercase tracking-tight">DISTRIBUSI UNTUNG PER HARI (SENIN–MINGGU)</h3>
-                        <p id="day-chart-subtitle" class="text-xs text-slate-500 mt-0.5">Perbandingan laba bersih dan rata-rata penjualan per hari</p>
-                    </div>
-                    <div class="inline-flex rounded-lg bg-slate-100 p-1 self-start sm:self-auto border border-slate-200 shrink-0">
-                        <button id="btn-day-profit" onclick="setDayChartMode('profit')" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-emerald-700 shadow-sm transition cursor-pointer">
-                            Total Untung
-                        </button>
-                        <button id="btn-day-avg" onclick="setDayChartMode('avg')" class="px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
-                            Rata-rata Biji
-                        </button>
-                    </div>
-                </div>
-
-                <div class="relative h-[220px] w-full">
-                    <canvas id="dayOfWeekChart"></canvas>
-                </div>
-
-                <div id="day-insights-box" class="mt-4 pt-3 border-t border-slate-100 space-y-2 text-xs">
-                    <!-- Insight hari terbaik diisi oleh JS -->
-                </div>
-            </div>
-
-            <!-- KANAN (7 Kolom): Tabel Rincian Transaksi Harian dengan Edit & Hapus -->
-            <div class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200/80 p-5 flex flex-col">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-                    <div>
-                        <h3 class="text-sm sm:text-base font-bold text-slate-800 uppercase tracking-tight">CATATAN PENJUALAN HARIAN (REAL-TIME)</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Kelola catatan harian: tambah, edit, atau hapus data langsung dari tabel</p>
-                    </div>
-
-                    <!-- Tab Filter Cepat -->
-                    <div class="inline-flex rounded-lg bg-slate-100 p-1 border border-slate-200 self-start md:self-auto">
-                        <button id="tab-all" onclick="setTableQuickTab('all')" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-[#1e3a8a] shadow-sm transition cursor-pointer">
-                            Semua Data (<span id="tab-all-count">92</span>)
-                        </button>
-                        <button id="tab-top10" onclick="setTableQuickTab('top10')" class="px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
-                            Top 10 Terlaris
-                        </button>
-                        <button id="tab-bottom" onclick="setTableQuickTab('bottom')" class="px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
-                            10 Terendah
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Search & Info Bar -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                    <div class="relative w-full sm:w-64">
-                        <input type="text" id="table-search" oninput="onSearchInput()" placeholder="Cari tanggal atau nama hari..." class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-700 focus:outline-none focus:border-[#1e3a8a]">
-                        <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                        </svg>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs text-slate-500">Menampilkan <strong id="table-showing-info" class="text-slate-700">1–10 dari 92</strong></span>
-                        <button onclick="openInputModal()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 underline cursor-pointer">+ Tambah Baris</button>
-                    </div>
-                </div>
-
-                <!-- Wrapper Tabel Responsif -->
-                <div class="overflow-x-auto border border-slate-200 rounded-lg flex-1">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider select-none">
-                                <th onclick="sortTable('tanggal')" class="py-2.5 px-3 cursor-pointer hover:bg-slate-100 transition whitespace-nowrap">
-                                    Tanggal <span id="sort-icon-tanggal" class="text-[#1e3a8a]">↓</span>
-                                </th>
-                                <th onclick="sortTable('hari')" class="py-2.5 px-3 cursor-pointer hover:bg-slate-100 transition whitespace-nowrap">
-                                    Hari <span id="sort-icon-hari" class="text-slate-400">↕</span>
-                                </th>
-                                <th onclick="sortTable('terjual')" class="py-2.5 px-3 text-right cursor-pointer hover:bg-slate-100 transition whitespace-nowrap">
-                                    Terjual <span id="sort-icon-terjual" class="text-slate-400">↕</span>
-                                </th>
-                                <th onclick="sortTable('pemasukan')" class="py-2.5 px-3 text-right cursor-pointer hover:bg-slate-100 transition whitespace-nowrap">
-                                    Pemasukan <span id="sort-icon-pemasukan" class="text-slate-400">↕</span>
-                                </th>
-                                <th onclick="sortTable('modal')" class="py-2.5 px-3 text-right cursor-pointer hover:bg-slate-100 transition whitespace-nowrap">
-                                    Modal <span id="sort-icon-modal" class="text-slate-400">↕</span>
-                                </th>
-                                <th onclick="sortTable('untung')" class="py-2.5 px-3 text-right cursor-pointer hover:bg-slate-100 transition whitespace-nowrap">
-                                    Untung <span id="sort-icon-untung" class="text-slate-400">↕</span>
-                                </th>
-                                <th onclick="sortTable('untung_berjalan')" class="py-2.5 px-3 text-right cursor-pointer hover:bg-slate-100 transition whitespace-nowrap">
-                                    Berjalan <span id="sort-icon-untung_berjalan" class="text-slate-400">↕</span>
-                                </th>
-                                <th class="py-2.5 px-3 text-center whitespace-nowrap">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="data-table-body" class="divide-y divide-slate-100 text-slate-700">
-                            <!-- Diisi dinamis oleh JS -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Kontrol Paginasi -->
-                <div class="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2">
-                    <div class="flex items-center gap-1.5 text-xs text-slate-600">
-                        <span>Baris/hal:</span>
-                        <select id="page-size" onchange="changePageSize()" class="px-2 py-1 rounded border border-slate-300 bg-white text-xs font-medium focus:outline-none">
-                            <option value="10" selected>10</option>
-                            <option value="15">15</option>
-                            <option value="25">25</option>
-                            <option value="500">Semua</option>
-                        </select>
-                    </div>
-                    <div id="pagination-controls" class="flex items-center gap-1">
-                        <!-- Tombol paginasi diisi oleh JS -->
-                    </div>
-                </div>
-            </div>
-
-        </section>
-
-    </main>
-
-    <!-- ==================== MODAL INPUT / EDIT PENJUALAN HARIAN ==================== -->
-    <div id="input-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full overflow-hidden">
-            <div class="bg-[#1e293b] text-white px-5 py-4 flex items-center justify-between">
-                <div>
-                    <h3 id="modal-form-title" class="text-base font-bold">Tambah Catatan Penjualan Harian</h3>
-                    <p id="modal-form-subtitle" class="text-xs text-slate-300 mt-0.5">Otomatis mendeteksi hari & memperbarui grafik real-time</p>
-                </div>
-                <button onclick="closeInputModal()" class="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-
-            <form id="daily-entry-form" onsubmit="saveDailyEntry(event)" class="p-5 space-y-4">
-                <input type="hidden" id="form-edit-original-date" value="">
-
-                <!-- Tanggal & Info Hari Otomatis -->
-                <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label for="form-tanggal" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Tanggal Operasional</label>
-                        <span id="form-day-badge" class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-[#1e3a8a]">Jumat • November 2026</span>
-                    </div>
-                    <input type="date" id="form-tanggal" required oninput="updateFormPreview()" onchange="updateFormPreview()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#1e3a8a]">
-                    <p id="form-duplicate-warning" class="hidden text-[11px] text-amber-600 font-medium mt-1">
-                        * Tanggal ini sudah tercatat. Menyimpan akan memperbarui data tanggal tersebut.
-                    </p>
-                </div>
-
-                <!-- Jumlah Terjual -->
-                <div>
-                    <label for="form-terjual" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jumlah Gorengan Terjual (Biji)</label>
-                    <input type="number" id="form-terjual" required min="0" step="1" placeholder="Contoh: 565" oninput="updateFormPreview()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#1e3a8a]">
-                </div>
-
-                <!-- Harga Jual & Modal -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label for="form-harga" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Harga Jual / Biji (Rp)</label>
-                        <input type="number" id="form-harga" required min="0" step="100" value="1000" oninput="updateFormPreview()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#1e3a8a]">
-                    </div>
-                    <div>
-                        <label for="form-modal" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Modal Hari Ini (Rp)</label>
-                        <input type="number" id="form-modal" required min="0" step="5000" value="200000" oninput="updateFormPreview()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#1e3a8a]">
-                    </div>
-                </div>
-
-                <!-- Preview Kalkulasi Instan -->
-                <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 space-y-2">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-slate-500">Estimasi Pemasukan Kotor:</span>
-                        <span id="preview-pemasukan" class="font-bold text-[#1e3a8a]">Rp0</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs border-t border-slate-200 pt-2">
-                        <span class="font-semibold text-slate-700">Estimasi Untung Bersih:</span>
-                        <div class="flex items-center gap-2">
-                            <span id="preview-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">PROFIT</span>
-                            <span id="preview-untung" class="text-sm font-extrabold text-emerald-600">Rp0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tombol Submit -->
-                <div class="flex items-center justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeInputModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition cursor-pointer">Batal</button>
-                    <button type="submit" class="px-5 py-2 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm transition cursor-pointer">Simpan & Perbarui Dashboard</button>
-                </div>
-            </form>
-        </div>
+      </div>
+      <div class="topbar-actions">
+        <label class="btn" for="excelUpload" title="Unggah file Excel baru">
+          Unggah Excel
+          <input type="file" id="excelUpload" accept=".xlsx,.xls" style="display:none" />
+        </label>
+        <button class="btn" id="btnExportExcel">Simpan ke Excel</button>
+        <button class="btn" id="btnResetDefault" title="Kembalikan ke data awal">Reset Data</button>
+      </div>
     </div>
+  </header>
 
-    <!-- ==================== MODAL KONFIRMASI HAPUS / RESET ==================== -->
-    <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-sm w-full p-5 space-y-4">
-            <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                    </svg>
-                </div>
-                <div>
-                    <h4 id="confirm-modal-title" class="text-sm font-bold text-slate-900">Konfirmasi Tindakan</h4>
-                    <p id="confirm-modal-message" class="text-xs text-slate-600 mt-1 leading-relaxed">Apakah Anda yakin?</p>
-                </div>
-            </div>
-            <div class="flex items-center justify-end gap-2 pt-2">
-                <button onclick="closeConfirmModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 cursor-pointer">Batal</button>
-                <button id="confirm-modal-action-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 cursor-pointer">Ya, Lanjutkan</button>
-            </div>
+  <main class="container">
+
+    <!-- 1. Kotak Catat Jualan Hari Ini -->
+    <section class="section">
+      <div class="quick-entry-card">
+        <div class="section-title" style="margin-bottom: 4px;">
+          <span id="formTitle">Catat Hasil Jualan Hari Ini</span>
+          <span class="section-subtitle">Otomatis tersimpan di perangkat Anda</span>
         </div>
-    </div>
 
-    <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+        <form id="salesForm" class="entry-grid">
+          <div class="field-group">
+            <label for="inputTanggal">Tanggal Jualan</label>
+            <input type="date" id="inputTanggal" class="input-control" required />
+          </div>
 
-    <!-- ==================== FOOTER ==================== -->
-    <footer class="bg-white border-t border-slate-200 mt-8">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-            <div>Penyimpanan Lokal Aktif (<code class="text-slate-700 font-semibold">localStorage</code>) • Mendukung Import & Export file <span class="font-semibold text-slate-700">.xlsx</span></div>
-            <div id="footer-period-info">Total Catatan: 92 Hari Operasional</div>
+          <div class="field-group">
+            <label for="inputTerjual">Jumlah Gorengan Laku (biji)</label>
+            <div class="stepper-wrap">
+              <button type="button" class="btn-step" data-step="-10">-10</button>
+              <input type="number" id="inputTerjual" class="input-control" value="550" min="0" step="1" required style="text-align:center;" />
+              <button type="button" class="btn-step" data-step="10">+10</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Perkiraan Untung Bersih</label>
+            <div class="live-preview-box">
+              <span>Untung:</span>
+              <strong id="previewUntung">Rp350.000</strong>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button type="submit" class="btn btn-primary btn-save-large" id="btnSubmitForm">Simpan Catatan</button>
+            <button type="button" class="btn btn-save-large" id="btnCancelEdit" style="display:none;">Batal</button>
+          </div>
+        </form>
+
+        <div class="settings-bar">
+          <div>
+            Aturan hitungan saat ini (ubah jika harga/modal berubah):
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:16px;">
+            <label class="inline-setting">
+              Harga per biji: <strong>Rp</strong>
+              <input type="number" id="settingHarga" value="1000" min="100" step="100" />
+            </label>
+            <label class="inline-setting">
+              Modal per hari: <strong>Rp</strong>
+              <input type="number" id="settingModal" value="200000" min="0" step="5000" />
+            </label>
+          </div>
         </div>
-    </footer>
+      </div>
+    </section>
 
-    <!-- ==================== JAVASCRIPT LOGIC & DATASET ==================== -->
-    <script>
-        const STORAGE_KEY = 'gorengan_keuangan_realtime_v1';
+    <!-- 2. Filter Bulan & Hari (Slicer Simpel) -->
+    <section class="section">
+      <div class="filter-bar">
+        <div class="pill-group" id="monthPills">
+          <!-- Diisi otomatis oleh JS -->
+        </div>
+        <div>
+          <select id="dayFilter" class="day-select" aria-label="Pilih Hari">
+            <option value="ALL">Semua Hari (Senin - Minggu)</option>
+            <option value="Senin">Khusus Hari Senin</option>
+            <option value="Selasa">Khusus Hari Selasa</option>
+            <option value="Rabu">Khusus Hari Rabu</option>
+            <option value="Kamis">Khusus Hari Kamis</option>
+            <option value="Jumat">Khusus Hari Jumat</option>
+            <option value="Sabtu">Khusus Hari Sabtu</option>
+            <option value="Minggu">Khusus Hari Minggu</option>
+          </select>
+        </div>
+      </div>
+    </section>
 
-        // DATA AWAL (92 hari dari 2026-08-13 sampai 2026-11-12)
-        const INITIAL_DATA = [
-            {"tanggal":"2026-08-13","terjual":541,"harga":1000,"modal":200000},{"tanggal":"2026-08-14","terjual":519,"harga":1000,"modal":200000},{"tanggal":"2026-08-15","terjual":550,"harga":1000,"modal":200000},{"tanggal":"2026-08-16","terjual":583,"harga":1000,"modal":200000},{"tanggal":"2026-08-17","terjual":506,"harga":1000,"modal":200000},{"tanggal":"2026-08-18","terjual":509,"harga":1000,"modal":200000},{"tanggal":"2026-08-19","terjual":568,"harga":1000,"modal":200000},{"tanggal":"2026-08-20","terjual":512,"harga":1000,"modal":200000},{"tanggal":"2026-08-21","terjual":546,"harga":1000,"modal":200000},{"tanggal":"2026-08-22","terjual":574,"harga":1000,"modal":200000},{"tanggal":"2026-08-23","terjual":507,"harga":1000,"modal":200000},{"tanggal":"2026-08-24","terjual":564,"harga":1000,"modal":200000},{"tanggal":"2026-08-25","terjual":527,"harga":1000,"modal":200000},{"tanggal":"2026-08-26","terjual":504,"harga":1000,"modal":200000},{"tanggal":"2026-08-27","terjual":511,"harga":1000,"modal":200000},{"tanggal":"2026-08-28","terjual":555,"harga":1000,"modal":200000},{"tanggal":"2026-08-29","terjual":553,"harga":1000,"modal":200000},{"tanggal":"2026-08-30","terjual":508,"harga":1000,"modal":200000},{"tanggal":"2026-08-31","terjual":530,"harga":1000,"modal":200000},{"tanggal":"2026-09-01","terjual":511,"harga":1000,"modal":200000},{"tanggal":"2026-09-02","terjual":570,"harga":1000,"modal":200000},{"tanggal":"2026-09-03","terjual":554,"harga":1000,"modal":200000},{"tanggal":"2026-09-04","terjual":507,"harga":1000,"modal":200000},{"tanggal":"2026-09-05","terjual":572,"harga":1000,"modal":200000},{"tanggal":"2026-09-06","terjual":515,"harga":1000,"modal":200000},{"tanggal":"2026-09-07","terjual":528,"harga":1000,"modal":200000},{"tanggal":"2026-09-08","terjual":580,"harga":1000,"modal":200000},{"tanggal":"2026-09-09","terjual":580,"harga":1000,"modal":200000},{"tanggal":"2026-09-10","terjual":574,"harga":1000,"modal":200000},{"tanggal":"2026-09-11","terjual":507,"harga":1000,"modal":200000},{"tanggal":"2026-09-12","terjual":573,"harga":1000,"modal":200000},{"tanggal":"2026-09-13","terjual":574,"harga":1000,"modal":200000},{"tanggal":"2026-09-14","terjual":550,"harga":1000,"modal":200000},{"tanggal":"2026-09-15","terjual":506,"harga":1000,"modal":200000},{"tanggal":"2026-09-16","terjual":528,"harga":1000,"modal":200000},{"tanggal":"2026-09-17","terjual":505,"harga":1000,"modal":200000},{"tanggal":"2026-09-18","terjual":571,"harga":1000,"modal":200000},{"tanggal":"2026-09-19","terjual":517,"harga":1000,"modal":200000},{"tanggal":"2026-09-20","terjual":537,"harga":1000,"modal":200000},{"tanggal":"2026-09-21","terjual":553,"harga":1000,"modal":200000},{"tanggal":"2026-09-22","terjual":518,"harga":1000,"modal":200000},{"tanggal":"2026-09-23","terjual":569,"harga":1000,"modal":200000},{"tanggal":"2026-09-24","terjual":515,"harga":1000,"modal":200000},{"tanggal":"2026-09-25","terjual":573,"harga":1000,"modal":200000},{"tanggal":"2026-09-26","terjual":539,"harga":1000,"modal":200000},{"tanggal":"2026-09-27","terjual":571,"harga":1000,"modal":200000},{"tanggal":"2026-09-28","terjual":587,"harga":1000,"modal":200000},{"tanggal":"2026-09-29","terjual":523,"harga":1000,"modal":200000},{"tanggal":"2026-09-30","terjual":513,"harga":1000,"modal":200000},{"tanggal":"2026-10-01","terjual":574,"harga":1000,"modal":200000},{"tanggal":"2026-10-02","terjual":573,"harga":1000,"modal":200000},{"tanggal":"2026-10-03","terjual":581,"harga":1000,"modal":200000},{"tanggal":"2026-10-04","terjual":524,"harga":1000,"modal":200000},{"tanggal":"2026-10-05","terjual":547,"harga":1000,"modal":200000},{"tanggal":"2026-10-06","terjual":512,"harga":1000,"modal":200000},{"tanggal":"2026-10-07","terjual":570,"harga":1000,"modal":200000},{"tanggal":"2026-10-08","terjual":591,"harga":1000,"modal":200000},{"tanggal":"2026-10-09","terjual":508,"harga":1000,"modal":200000},{"tanggal":"2026-10-10","terjual":572,"harga":1000,"modal":200000},{"tanggal":"2026-10-11","terjual":507,"harga":1000,"modal":200000},{"tanggal":"2026-10-12","terjual":579,"harga":1000,"modal":200000},{"tanggal":"2026-10-13","terjual":526,"harga":1000,"modal":200000},{"tanggal":"2026-10-14","terjual":563,"harga":1000,"modal":200000},{"tanggal":"2026-10-15","terjual":587,"harga":1000,"modal":200000},{"tanggal":"2026-10-16","terjual":568,"harga":1000,"modal":200000},{"tanggal":"2026-10-17","terjual":554,"harga":1000,"modal":200000},{"tanggal":"2026-10-18","terjual":599,"harga":1000,"modal":200000},{"tanggal":"2026-10-19","terjual":540,"harga":1000,"modal":200000},{"tanggal":"2026-10-20","terjual":559,"harga":1000,"modal":200000},{"tanggal":"2026-10-21","terjual":574,"harga":1000,"modal":200000},{"tanggal":"2026-10-22","terjual":558,"harga":1000,"modal":200000},{"tanggal":"2026-10-23","terjual":546,"harga":1000,"modal":200000},{"tanggal":"2026-10-24","terjual":538,"harga":1000,"modal":200000},{"tanggal":"2026-10-25","terjual":531,"harga":1000,"modal":200000},{"tanggal":"2026-10-26","terjual":523,"harga":1000,"modal":200000},{"tanggal":"2026-10-27","terjual":589,"harga":1000,"modal":200000},{"tanggal":"2026-10-28","terjual":599,"harga":1000,"modal":200000},{"tanggal":"2026-10-29","terjual":531,"harga":1000,"modal":200000},{"tanggal":"2026-10-30","terjual":510,"harga":1000,"modal":200000},{"tanggal":"2026-10-31","terjual":573,"harga":1000,"modal":200000},{"tanggal":"2026-11-01","terjual":538,"harga":1000,"modal":200000},{"tanggal":"2026-11-02","terjual":567,"harga":1000,"modal":200000},{"tanggal":"2026-11-03","terjual":563,"harga":1000,"modal":200000},{"tanggal":"2026-11-04","terjual":543,"harga":1000,"modal":200000},{"tanggal":"2026-11-05","terjual":593,"harga":1000,"modal":200000},{"tanggal":"2026-11-06","terjual":557,"harga":1000,"modal":200000},{"tanggal":"2026-11-07","terjual":536,"harga":1000,"modal":200000},{"tanggal":"2026-11-08","terjual":577,"harga":1000,"modal":200000},{"tanggal":"2026-11-09","terjual":509,"harga":1000,"modal":200000},{"tanggal":"2026-11-10","terjual":515,"harga":1000,"modal":200000},{"tanggal":"2026-11-11","terjual":565,"harga":1000,"modal":200000},{"tanggal":"2026-11-12","terjual":553,"harga":1000,"modal":200000}
-        ];
+    <!-- 3. Kartu Ringkasan Utama (Z-Pattern Top Row) -->
+    <section class="section">
+      <div class="kpi-grid">
+        <div class="kpi-card highlight">
+          <div class="kpi-label">Total Untung Bersih</div>
+          <div class="kpi-value" id="kpiUntung">Rp31.909.000</div>
+          <div class="kpi-note" id="kpiUntungAvg">Rata-rata Rp346.837 / hari</div>
+        </div>
 
-        // STATE UTAMA APLIKASI
-        let records = [];
-        const state = {
-            selectedMonths: new Set(),
-            selectedDays: new Set(),
-            dateStart: '',
-            dateEnd: '',
-            simActive: false,
-            simHarga: 1000,
-            simModal: 200000,
-            trendMode: 'daily',       // 'daily' | 'cumulative'
-            dayChartMode: 'profit',   // 'profit' | 'avg'
-            tableQuickTab: 'all',     // 'all' | 'top10' | 'bottom'
-            searchQuery: '',
-            sortColumn: 'tanggal',
-            sortDirection: 'desc',    // default terbaru di atas agar entri baru langsung terlihat
-            currentPage: 1,
-            pageSize: 10
+        <div class="kpi-card">
+          <div class="kpi-label">Total Uang Masuk (Omzet)</div>
+          <div class="kpi-value" id="kpiPemasukan">Rp50.309.000</div>
+          <div class="kpi-note" id="kpiMargin">Keuntungan bersih 63,4% dari omzet</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Total Modal Bahan</div>
+          <div class="kpi-value" id="kpiModal">Rp18.400.000</div>
+          <div class="kpi-note" id="kpiHari">Selama 92 hari berjualan</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Total Gorengan Terjual</div>
+          <div class="kpi-value" id="kpiTerjual">50.309 biji</div>
+          <div class="kpi-note" id="kpiTerjualAvg">Rata-rata 547 biji / hari</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Sorotan Penting -->
+    <section class="section">
+      <div class="insight-strip" id="insightStrip">
+        <span>Catatan: Minimal jualan <strong>200 biji/hari</strong> untuk balik modal.</span>
+        <span id="bestDayText">Hari paling laris: <strong>18 Okt 2026 (599 biji)</strong></span>
+      </div>
+    </section>
+
+    <!-- 5. Grafik Sederhana & Mudah Dibaca -->
+    <section class="section">
+      <div class="charts-grid">
+        <div class="card-box">
+          <div class="card-header">
+            <h3>Grafik Untung Harian</h3>
+            <p>Naik-turunnya keuntungan bersih setiap hari berjualan</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="dailyChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card-box">
+          <div class="card-header">
+            <h3>Perbandingan Per Bulan</h3>
+            <p>Total uang masuk dibanding modal tiap bulan</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="monthlyChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Buku Catatan Harian (Tabel) -->
+    <section class="section">
+      <div class="card-box">
+        <div class="table-controls">
+          <div>
+            <h3 style="font-size:17px; font-weight:700;">Buku Catatan Harian</h3>
+            <p style="font-size:13.5px; color:var(--text-secondary);">Klik "Ubah" jika ingin memperbaiki catatan tanggal tertentu</p>
+          </div>
+          <input type="text" id="searchInput" class="search-input" placeholder="Cari tanggal atau hari (misal: Minggu)..." />
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Hari</th>
+                <th>Laku (Biji)</th>
+                <th>Uang Masuk</th>
+                <th>Modal</th>
+                <th>Untung Bersih</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- Diisi oleh JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <span id="pageInfo">Menampilkan 1 - 10 dari 92 hari</span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn" id="btnPrevPage">Sebelumnya</button>
+            <button class="btn" id="btnNextPage">Berikutnya</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="toast" id="toast">Catatan berhasil disimpan</div>
+
+  <script>
+    // Data Awal Lengkap 92 Hari dari keuangan-gorengan.xlsx
+    const INITIAL_DATA = [
+      {"tanggal":"2026-08-13","hari":"Kamis","terjual":541,"pemasukan":541000,"modal":200000,"untung":341000},
+      {"tanggal":"2026-08-14","hari":"Jumat","terjual":519,"pemasukan":519000,"modal":200000,"untung":319000},
+      {"tanggal":"2026-08-15","hari":"Sabtu","terjual":550,"pemasukan":550000,"modal":200000,"untung":350000},
+      {"tanggal":"2026-08-16","hari":"Minggu","terjual":583,"pemasukan":583000,"modal":200000,"untung":383000},
+      {"tanggal":"2026-08-17","hari":"Senin","terjual":506,"pemasukan":506000,"modal":200000,"untung":306000},
+      {"tanggal":"2026-08-18","hari":"Selasa","terjual":509,"pemasukan":509000,"modal":200000,"untung":309000},
+      {"tanggal":"2026-08-19","hari":"Rabu","terjual":568,"pemasukan":568000,"modal":200000,"untung":368000},
+      {"tanggal":"2026-08-20","hari":"Kamis","terjual":512,"pemasukan":512000,"modal":200000,"untung":312000},
+      {"tanggal":"2026-08-21","hari":"Jumat","terjual":546,"pemasukan":546000,"modal":200000,"untung":346000},
+      {"tanggal":"2026-08-22","hari":"Sabtu","terjual":574,"pemasukan":574000,"modal":200000,"untung":374000},
+      {"tanggal":"2026-08-23","hari":"Minggu","terjual":507,"pemasukan":507000,"modal":200000,"untung":307000},
+      {"tanggal":"2026-08-24","hari":"Senin","terjual":564,"pemasukan":564000,"modal":200000,"untung":364000},
+      {"tanggal":"2026-08-25","hari":"Selasa","terjual":527,"pemasukan":527000,"modal":200000,"untung":327000},
+      {"tanggal":"2026-08-26","hari":"Rabu","terjual":504,"pemasukan":504000,"modal":200000,"untung":304000},
+      {"tanggal":"2026-08-27","hari":"Kamis","terjual":511,"pemasukan":511000,"modal":200000,"untung":311000},
+      {"tanggal":"2026-08-28","hari":"Jumat","terjual":555,"pemasukan":555000,"modal":200000,"untung":355000},
+      {"tanggal":"2026-08-29","hari":"Sabtu","terjual":553,"pemasukan":553000,"modal":200000,"untung":353000},
+      {"tanggal":"2026-08-30","hari":"Minggu","terjual":508,"pemasukan":508000,"modal":200000,"untung":308000},
+      {"tanggal":"2026-08-31","hari":"Senin","terjual":530,"pemasukan":530000,"modal":200000,"untung":330000},
+      {"tanggal":"2026-09-01","hari":"Selasa","terjual":511,"pemasukan":511000,"modal":200000,"untung":311000},
+      {"tanggal":"2026-09-02","hari":"Rabu","terjual":570,"pemasukan":570000,"modal":200000,"untung":370000},
+      {"tanggal":"2026-09-03","hari":"Kamis","terjual":554,"pemasukan":554000,"modal":200000,"untung":354000},
+      {"tanggal":"2026-09-04","hari":"Jumat","terjual":507,"pemasukan":507000,"modal":200000,"untung":307000},
+      {"tanggal":"2026-09-05","hari":"Sabtu","terjual":572,"pemasukan":572000,"modal":200000,"untung":372000},
+      {"tanggal":"2026-09-06","hari":"Minggu","terjual":515,"pemasukan":515000,"modal":200000,"untung":315000},
+      {"tanggal":"2026-09-07","hari":"Senin","terjual":528,"pemasukan":528000,"modal":200000,"untung":328000},
+      {"tanggal":"2026-09-08","hari":"Selasa","terjual":580,"pemasukan":580000,"modal":200000,"untung":380000},
+      {"tanggal":"2026-09-09","hari":"Rabu","terjual":580,"pemasukan":580000,"modal":200000,"untung":380000},
+      {"tanggal":"2026-09-10","hari":"Kamis","terjual":574,"pemasukan":574000,"modal":200000,"untung":374000},
+      {"tanggal":"2026-09-11","hari":"Jumat","terjual":507,"pemasukan":507000,"modal":200000,"untung":307000},
+      {"tanggal":"2026-09-12","hari":"Sabtu","terjual":573,"pemasukan":573000,"modal":200000,"untung":373000},
+      {"tanggal":"2026-09-13","hari":"Minggu","terjual":574,"pemasukan":574000,"modal":200000,"untung":374000},
+      {"tanggal":"2026-09-14","hari":"Senin","terjual":550,"pemasukan":550000,"modal":200000,"untung":350000},
+      {"tanggal":"2026-09-15","hari":"Selasa","terjual":506,"pemasukan":506000,"modal":200000,"untung":306000},
+      {"tanggal":"2026-09-16","hari":"Rabu","terjual":528,"pemasukan":528000,"modal":200000,"untung":328000},
+      {"tanggal":"2026-09-17","hari":"Kamis","terjual":505,"pemasukan":505000,"modal":200000,"untung":305000},
+      {"tanggal":"2026-09-18","hari":"Jumat","terjual":571,"pemasukan":571000,"modal":200000,"untung":371000},
+      {"tanggal":"2026-09-19","hari":"Sabtu","terjual":517,"pemasukan":517000,"modal":200000,"untung":317000},
+      {"tanggal":"2026-09-20","hari":"Minggu","terjual":537,"pemasukan":537000,"modal":200000,"untung":337000},
+      {"tanggal":"2026-09-21","hari":"Senin","terjual":553,"pemasukan":553000,"modal":200000,"untung":353000},
+      {"tanggal":"2026-09-22","hari":"Selasa","terjual":518,"pemasukan":518000,"modal":200000,"untung":318000},
+      {"tanggal":"2026-09-23","hari":"Rabu","terjual":569,"pemasukan":569000,"modal":200000,"untung":369000},
+      {"tanggal":"2026-09-24","hari":"Kamis","terjual":515,"pemasukan":515000,"modal":200000,"untung":315000},
+      {"tanggal":"2026-09-25","hari":"Jumat","terjual":573,"pemasukan":573000,"modal":200000,"untung":373000},
+      {"tanggal":"2026-09-26","hari":"Sabtu","terjual":539,"pemasukan":539000,"modal":200000,"untung":339000},
+      {"tanggal":"2026-09-27","hari":"Minggu","terjual":571,"pemasukan":571000,"modal":200000,"untung":371000},
+      {"tanggal":"2026-09-28","hari":"Senin","terjual":587,"pemasukan":587000,"modal":200000,"untung":387000},
+      {"tanggal":"2026-09-29","hari":"Selasa","terjual":523,"pemasukan":523000,"modal":200000,"untung":323000},
+      {"tanggal":"2026-09-30","hari":"Rabu","terjual":513,"pemasukan":513000,"modal":200000,"untung":313000},
+      {"tanggal":"2026-10-01","hari":"Kamis","terjual":574,"pemasukan":574000,"modal":200000,"untung":374000},
+      {"tanggal":"2026-10-02","hari":"Jumat","terjual":573,"pemasukan":573000,"modal":200000,"untung":373000},
+      {"tanggal":"2026-10-03","hari":"Sabtu","terjual":581,"pemasukan":581000,"modal":200000,"untung":381000},
+      {"tanggal":"2026-10-04","hari":"Minggu","terjual":524,"pemasukan":524000,"modal":200000,"untung":324000},
+      {"tanggal":"2026-10-05","hari":"Senin","terjual":547,"pemasukan":547000,"modal":200000,"untung":347000},
+      {"tanggal":"2026-10-06","hari":"Selasa","terjual":512,"pemasukan":512000,"modal":200000,"untung":312000},
+      {"tanggal":"2026-10-07","hari":"Rabu","terjual":570,"pemasukan":570000,"modal":200000,"untung":370000},
+      {"tanggal":"2026-10-08","hari":"Kamis","terjual":591,"pemasukan":591000,"modal":200000,"untung":391000},
+      {"tanggal":"2026-10-09","hari":"Jumat","terjual":508,"pemasukan":508000,"modal":200000,"untung":308000},
+      {"tanggal":"2026-10-10","hari":"Sabtu","terjual":572,"pemasukan":572000,"modal":200000,"untung":372000},
+      {"tanggal":"2026-10-11","hari":"Minggu","terjual":507,"pemasukan":507000,"modal":200000,"untung":307000},
+      {"tanggal":"2026-10-12","hari":"Senin","terjual":579,"pemasukan":579000,"modal":200000,"untung":379000},
+      {"tanggal":"2026-10-13","hari":"Selasa","terjual":526,"pemasukan":526000,"modal":200000,"untung":326000},
+      {"tanggal":"2026-10-14","hari":"Rabu","terjual":563,"pemasukan":563000,"modal":200000,"untung":363000},
+      {"tanggal":"2026-10-15","hari":"Kamis","terjual":587,"pemasukan":587000,"modal":200000,"untung":387000},
+      {"tanggal":"2026-10-16","hari":"Jumat","terjual":568,"pemasukan":568000,"modal":200000,"untung":368000},
+      {"tanggal":"2026-10-17","hari":"Sabtu","terjual":554,"pemasukan":554000,"modal":200000,"untung":354000},
+      {"tanggal":"2026-10-18","hari":"Minggu","terjual":599,"pemasukan":599000,"modal":200000,"untung":399000},
+      {"tanggal":"2026-10-19","hari":"Senin","terjual":540,"pemasukan":540000,"modal":200000,"untung":340000},
+      {"tanggal":"2026-10-20","hari":"Selasa","terjual":559,"pemasukan":559000,"modal":200000,"untung":359000},
+      {"tanggal":"2026-10-21","hari":"Rabu","terjual":574,"pemasukan":574000,"modal":200000,"untung":374000},
+      {"tanggal":"2026-10-22","hari":"Kamis","terjual":558,"pemasukan":558000,"modal":200000,"untung":358000},
+      {"tanggal":"2026-10-23","hari":"Jumat","terjual":546,"pemasukan":546000,"modal":200000,"untung":346000},
+      {"tanggal":"2026-10-24","hari":"Sabtu","terjual":538,"pemasukan":538000,"modal":200000,"untung":338000},
+      {"tanggal":"2026-10-25","hari":"Minggu","terjual":531,"pemasukan":531000,"modal":200000,"untung":331000},
+      {"tanggal":"2026-10-26","hari":"Senin","terjual":523,"pemasukan":523000,"modal":200000,"untung":323000},
+      {"tanggal":"2026-10-27","hari":"Selasa","terjual":589,"pemasukan":589000,"modal":200000,"untung":389000},
+      {"tanggal":"2026-10-28","hari":"Rabu","terjual":599,"pemasukan":599000,"modal":200000,"untung":399000},
+      {"tanggal":"2026-10-29","hari":"Kamis","terjual":531,"pemasukan":531000,"modal":200000,"untung":331000},
+      {"tanggal":"2026-10-30","hari":"Jumat","terjual":510,"pemasukan":510000,"modal":200000,"untung":310000},
+      {"tanggal":"2026-10-31","hari":"Sabtu","terjual":573,"pemasukan":573000,"modal":200000,"untung":373000},
+      {"tanggal":"2026-11-01","hari":"Minggu","terjual":538,"pemasukan":538000,"modal":200000,"untung":338000},
+      {"tanggal":"2026-11-02","hari":"Senin","terjual":567,"pemasukan":567000,"modal":200000,"untung":367000},
+      {"tanggal":"2026-11-03","hari":"Selasa","terjual":563,"pemasukan":563000,"modal":200000,"untung":363000},
+      {"tanggal":"2026-11-04","hari":"Rabu","terjual":543,"pemasukan":543000,"modal":200000,"untung":343000},
+      {"tanggal":"2026-11-05","hari":"Kamis","terjual":593,"pemasukan":593000,"modal":200000,"untung":393000},
+      {"tanggal":"2026-11-06","hari":"Jumat","terjual":557,"pemasukan":557000,"modal":200000,"untung":357000},
+      {"tanggal":"2026-11-07","hari":"Sabtu","terjual":536,"pemasukan":536000,"modal":200000,"untung":336000},
+      {"tanggal":"2026-11-08","hari":"Minggu","terjual":577,"pemasukan":577000,"modal":200000,"untung":377000},
+      {"tanggal":"2026-11-09","hari":"Senin","terjual":509,"pemasukan":509000,"modal":200000,"untung":309000},
+      {"tanggal":"2026-11-10","hari":"Selasa","terjual":515,"pemasukan":515000,"modal":200000,"untung":315000},
+      {"tanggal":"2026-11-11","hari":"Rabu","terjual":565,"pemasukan":565000,"modal":200000,"untung":365000},
+      {"tanggal":"2026-11-12","hari":"Kamis","terjual":553,"pemasukan":553000,"modal":200000,"untung":353000}
+    ];
+
+    const STORAGE_KEY = 'gorengan_ibu_data_v1';
+    const SETTINGS_KEY = 'gorengan_ibu_settings_v1';
+
+    let records = [];
+    let settings = { harga: 1000, modal: 200000 };
+    let selectedMonth = 'ALL';
+    let selectedDay = 'ALL';
+    let searchQuery = '';
+    let currentPage = 1;
+    const rowsPerPage = 10;
+    let editingDate = null;
+
+    let dailyChartInstance = null;
+    let monthlyChartInstance = null;
+
+    const NAMA_HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const NAMA_BULAN = {
+      '01': 'Januari', '02': 'Februari', '03': 'Maret', '04': 'April',
+      '05': 'Mei', '06': 'Juni', '07': 'Juli', '08': 'Agustus',
+      '09': 'September', '10': 'Oktober', '11': 'November', '12': 'Desember'
+    };
+
+    function formatRupiah(num) {
+      const sign = num < 0 ? '-' : '';
+      return sign + 'Rp' + Math.abs(Math.round(num)).toLocaleString('id-ID');
+    }
+
+    function formatTanggalIndo(isoStr) {
+      const [y, m, d] = isoStr.split('-');
+      return `${parseInt(d, 10)} ${NAMA_BULAN[m].slice(0, 3)} ${y}`;
+    }
+
+    function getNamaHari(isoStr) {
+      const [y, m, d] = isoStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      return NAMA_HARI[dt.getDay()];
+    }
+
+    function getBulanLabel(isoStr) {
+      const [y, m] = isoStr.split('-');
+      return `${NAMA_BULAN[m]} ${y}`;
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2800);
+    }
+
+    function loadState() {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      const savedSettings = localStorage.getItem(SETTINGS_KEY);
+      if (savedData) {
+        try {
+          records = JSON.parse(savedData);
+        } catch (e) {
+          records = [...INITIAL_DATA];
+        }
+      } else {
+        records = [...INITIAL_DATA];
+      }
+
+      if (savedSettings) {
+        try {
+          settings = JSON.parse(savedSettings);
+        } catch (e) {
+          settings = { harga: 1000, modal: 200000 };
+        }
+      }
+
+      document.getElementById('settingHarga').value = settings.harga;
+      document.getElementById('settingModal').value = settings.modal;
+      setDefaultNextDate();
+    }
+
+    function saveState() {
+      records.sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    }
+
+    function setDefaultNextDate() {
+      if (records.length === 0) {
+        document.getElementById('inputTanggal').value = '2026-11-13';
+        return;
+      }
+      const sorted = [...records].sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+      const last = sorted[sorted.length - 1].tanggal;
+      const [y, m, d] = last.split('-').map(Number);
+      const next = new Date(y, m - 1, d + 1);
+      const ny = next.getFullYear();
+      const nm = String(next.getMonth() + 1).padStart(2, '0');
+      const nd = String(next.getDate()).padStart(2, '0');
+      document.getElementById('inputTanggal').value = `${ny}-${nm}-${nd}`;
+    }
+
+    function updateLivePreview() {
+      const terjual = parseInt(document.getElementById('inputTerjual').value, 10) || 0;
+      const harga = parseInt(document.getElementById('settingHarga').value, 10) || 1000;
+      const modal = parseInt(document.getElementById('settingModal').value, 10) || 0;
+      const untung = (terjual * harga) - modal;
+      const previewEl = document.getElementById('previewUntung');
+      previewEl.textContent = formatRupiah(untung);
+      previewEl.style.color = untung >= 0 ? '#1B6B50' : '#B91C1C';
+    }
+
+    function getFilteredRecords() {
+      return records.filter(r => {
+        const bulanKey = r.tanggal.slice(0, 7);
+        if (selectedMonth !== 'ALL' && bulanKey !== selectedMonth) return false;
+        if (selectedDay !== 'ALL' && r.hari !== selectedDay) return false;
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase();
+          const tglIndo = formatTanggalIndo(r.tanggal).toLowerCase();
+          if (!tglIndo.includes(q) && !r.hari.toLowerCase().includes(q) && !r.tanggal.includes(q)) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+
+    function renderMonthPills() {
+      const container = document.getElementById('monthPills');
+      const monthsSet = new Set(records.map(r => r.tanggal.slice(0, 7)));
+      const months = Array.from(monthsSet).sort();
+
+      let html = `<button class="pill-btn ${selectedMonth === 'ALL' ? 'active' : ''}" data-month="ALL">Semua Bulan</button>`;
+      months.forEach(m => {
+        const [y, mo] = m.split('-');
+        const label = `${NAMA_BULAN[mo]} ${y}`;
+        html += `<button class="pill-btn ${selectedMonth === m ? 'active' : ''}" data-month="${m}">${label}</button>`;
+      });
+      container.innerHTML = html;
+
+      container.querySelectorAll('.pill-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedMonth = btn.getAttribute('data-month');
+          currentPage = 1;
+          renderAll();
+        });
+      });
+    }
+
+    function renderKPIs(filtered) {
+      const totalUntung = filtered.reduce((acc, r) => acc + r.untung, 0);
+      const totalPemasukan = filtered.reduce((acc, r) => acc + r.pemasukan, 0);
+      const totalModal = filtered.reduce((acc, r) => acc + r.modal, 0);
+      const totalTerjual = filtered.reduce((acc, r) => acc + r.terjual, 0);
+      const count = filtered.length;
+
+      const avgUntung = count ? totalUntung / count : 0;
+      const avgTerjual = count ? Math.round(totalTerjual / count) : 0;
+      const marginPct = totalPemasukan ? ((totalUntung / totalPemasukan) * 100).toFixed(1).replace('.', ',') : '0,0';
+
+      document.getElementById('kpiUntung').textContent = formatRupiah(totalUntung);
+      document.getElementById('kpiUntungAvg').textContent = `Rata-rata ${formatRupiah(avgUntung)} / hari`;
+
+      document.getElementById('kpiPemasukan').textContent = formatRupiah(totalPemasukan);
+      document.getElementById('kpiMargin').textContent = `Keuntungan bersih ${marginPct}% dari omzet`;
+
+      document.getElementById('kpiModal').textContent = formatRupiah(totalModal);
+      document.getElementById('kpiHari').textContent = `Selama ${count} hari berjualan`;
+
+      document.getElementById('kpiTerjual').textContent = `${totalTerjual.toLocaleString('id-ID')} biji`;
+      document.getElementById('kpiTerjualAvg').textContent = `Rata-rata ${avgTerjual.toLocaleString('id-ID')} biji / hari`;
+
+      // Insight strip
+      const bep = settings.harga > 0 ? Math.ceil(settings.modal / settings.harga) : 0;
+      document.getElementById('insightStrip').children[0].innerHTML =
+        `Catatan: Minimal jualan <strong>${bep.toLocaleString('id-ID')} biji/hari</strong> untuk balik modal.`;
+
+      if (count > 0) {
+        const best = [...filtered].sort((a, b) => b.terjual - a.terjual)[0];
+        document.getElementById('bestDayText').innerHTML =
+          `Hari paling laris: <strong>${formatTanggalIndo(best.tanggal)} (${best.terjual} biji)</strong>`;
+      } else {
+        document.getElementById('bestDayText').innerHTML = `Belum ada data pada pilihan ini`;
+      }
+    }
+
+    function renderCharts(filtered) {
+      const sorted = [...filtered].sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+
+      // 1. Daily Profit Line Chart
+      const ctxDaily = document.getElementById('dailyChart').getContext('2d');
+      if (dailyChartInstance) dailyChartInstance.destroy();
+
+      dailyChartInstance = new Chart(ctxDaily, {
+        type: 'line',
+        data: {
+          labels: sorted.map(r => formatTanggalIndo(r.tanggal)),
+          datasets: [{
+            label: 'Untung Bersih (Rp)',
+            data: sorted.map(r => r.untung),
+            borderColor: '#1B6B50',
+            backgroundColor: 'rgba(27, 107, 80, 0.08)',
+            borderWidth: 2.5,
+            pointRadius: sorted.length > 40 ? 2 : 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#1B6B50',
+            fill: true,
+            tension: 0.25
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1E242B',
+              padding: 12,
+              titleFont: { family: 'Plus Jakarta Sans', size: 13 },
+              bodyFont: { family: 'Plus Jakarta Sans', size: 14, weight: 'bold' },
+              callbacks: {
+                label: (ctx) => `Untung: ${formatRupiah(ctx.parsed.y)}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                maxTicksLimit: 7,
+                font: { family: 'Plus Jakarta Sans', size: 12 },
+                color: '#5C6570'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: '#EFECE6' },
+              ticks: {
+                font: { family: 'Plus Jakarta Sans', size: 12 },
+                color: '#5C6570',
+                callback: (val) => 'Rp' + (val / 1000) + ' rb'
+              }
+            }
+          }
+        }
+      });
+
+      // 2. Monthly Comparison Bar Chart (uses all records filtered by day so monthly comparison stays meaningful)
+      const dayFiltered = records.filter(r => selectedDay === 'ALL' || r.hari === selectedDay);
+      const monthMap = {};
+      dayFiltered.forEach(r => {
+        const key = r.tanggal.slice(0, 7);
+        if (!monthMap[key]) monthMap[key] = { untung: 0, modal: 0 };
+        monthMap[key].untung += r.untung;
+        monthMap[key].modal += r.modal;
+      });
+      const monthKeys = Object.keys(monthMap).sort();
+
+      const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+      if (monthlyChartInstance) monthlyChartInstance.destroy();
+
+      monthlyChartInstance = new Chart(ctxMonthly, {
+        type: 'bar',
+        data: {
+          labels: monthKeys.map(k => {
+            const [y, m] = k.split('-');
+            return NAMA_BULAN[m].slice(0, 3) + ' ' + y;
+          }),
+          datasets: [
+            {
+              label: 'Untung Bersih',
+              data: monthKeys.map(k => monthMap[k].untung),
+              backgroundColor: '#1B6B50',
+              borderRadius: 6
+            },
+            {
+              label: 'Modal Bahan',
+              data: monthKeys.map(k => monthMap[k].modal),
+              backgroundColor: '#D6CFC4',
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: { family: 'Plus Jakarta Sans', size: 13, weight: '600' },
+                color: '#1E242B',
+                usePointStyle: true
+              }
+            },
+            tooltip: {
+              backgroundColor: '#1E242B',
+              padding: 12,
+              callbacks: {
+                label: (ctx) => `${ctx.dataset.label}: ${formatRupiah(ctx.parsed.y)}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              grid: { display: false },
+              ticks: { font: { family: 'Plus Jakarta Sans', size: 12 }, color: '#5C6570' }
+            },
+            y: {
+              stacked: true,
+              grid: { color: '#EFECE6' },
+              ticks: {
+                font: { family: 'Plus Jakarta Sans', size: 12 },
+                color: '#5C6570',
+                callback: (val) => 'Rp' + (val / 1000000).toFixed(1) + ' jt'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTable(filtered) {
+      // Sort newest first in table so Ibu sees recent entries on top
+      const sortedDesc = [...filtered].sort((a, b) => b.tanggal.localeCompare(a.tanggal));
+      const totalRows = sortedDesc.length;
+      const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const startIdx = (currentPage - 1) * rowsPerPage;
+      const pageSlice = sortedDesc.slice(startIdx, startIdx + rowsPerPage);
+
+      const tbody = document.getElementById('tableBody');
+      if (pageSlice.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:28px; color:var(--text-secondary);">Belum ada catatan pada filter ini.</td></tr>`;
+      } else {
+        tbody.innerHTML = pageSlice.map(r => `
+          <tr>
+            <td><strong>${formatTanggalIndo(r.tanggal)}</strong></td>
+            <td><span class="badge-day">${r.hari}</span></td>
+            <td>${r.terjual.toLocaleString('id-ID')} biji</td>
+            <td>${formatRupiah(r.pemasukan)}</td>
+            <td>${formatRupiah(r.modal)}</td>
+            <td class="text-profit">${formatRupiah(r.untung)}</td>
+            <td>
+              <div class="action-btns">
+                <button class="btn-mini edit" onclick="startEdit('${r.tanggal}')">Ubah</button>
+                <button class="btn-mini del" onclick="deleteRecord('${r.tanggal}')">Hapus</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      const showStart = totalRows === 0 ? 0 : startIdx + 1;
+      const showEnd = Math.min(startIdx + rowsPerPage, totalRows);
+      document.getElementById('pageInfo').textContent = `Menampilkan ${showStart} - ${showEnd} dari ${totalRows} hari`;
+      document.getElementById('btnPrevPage').disabled = currentPage <= 1;
+      document.getElementById('btnNextPage').disabled = currentPage >= totalPages;
+    }
+
+    function renderAll() {
+      renderMonthPills();
+      const filtered = getFilteredRecords();
+      renderKPIs(filtered);
+      renderCharts(filtered);
+      renderTable(filtered);
+    }
+
+    // Form Submit (Add or Update)
+    document.getElementById('salesForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const tanggal = document.getElementById('inputTanggal').value;
+      const terjual = parseInt(document.getElementById('inputTerjual').value, 10) || 0;
+      const harga = parseInt(document.getElementById('settingHarga').value, 10) || 1000;
+      const modal = parseInt(document.getElementById('settingModal').value, 10) || 0;
+
+      const pemasukan = terjual * harga;
+      const untung = pemasukan - modal;
+      const hari = getNamaHari(tanggal);
+
+      if (editingDate && editingDate !== tanggal) {
+        records = records.filter(r => r.tanggal !== editingDate);
+      }
+
+      const existingIdx = records.findIndex(r => r.tanggal === tanggal);
+      const newObj = { tanggal, hari, terjual, pemasukan, modal, untung };
+
+      if (existingIdx >= 0) {
+        records[existingIdx] = newObj;
+        showToast(`Catatan tanggal ${formatTanggalIndo(tanggal)} diperbarui`);
+      } else {
+        records.push(newObj);
+        showToast(`Catatan tanggal ${formatTanggalIndo(tanggal)} berhasil disimpan`);
+      }
+
+      editingDate = null;
+      document.getElementById('formTitle').textContent = 'Catat Hasil Jualan Hari Ini';
+      document.getElementById('btnSubmitForm').textContent = 'Simpan Catatan';
+      document.getElementById('btnCancelEdit').style.display = 'none';
+
+      saveState();
+      setDefaultNextDate();
+      updateLivePreview();
+      renderAll();
+    });
+
+    window.startEdit = function(tanggal) {
+      const rec = records.find(r => r.tanggal === tanggal);
+      if (!rec) return;
+      editingDate = tanggal;
+      document.getElementById('inputTanggal').value = rec.tanggal;
+      document.getElementById('inputTerjual').value = rec.terjual;
+      document.getElementById('formTitle').textContent = `Ubah Catatan Tanggal ${formatTanggalIndo(tanggal)}`;
+      document.getElementById('btnSubmitForm').textContent = 'Simpan Perubahan';
+      document.getElementById('btnCancelEdit').style.display = 'inline-flex';
+      updateLivePreview();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    document.getElementById('btnCancelEdit').addEventListener('click', () => {
+      editingDate = null;
+      document.getElementById('formTitle').textContent = 'Catat Hasil Jualan Hari Ini';
+      document.getElementById('btnSubmitForm').textContent = 'Simpan Catatan';
+      document.getElementById('btnCancelEdit').style.display = 'none';
+      setDefaultNextDate();
+      document.getElementById('inputTerjual').value = 550;
+      updateLivePreview();
+    });
+
+    window.deleteRecord = function(tanggal) {
+      if (!confirm(`Hapus catatan tanggal ${formatTanggalIndo(tanggal)}?`)) return;
+      records = records.filter(r => r.tanggal !== tanggal);
+      saveState();
+      renderAll();
+      showToast('Catatan telah dihapus');
+    };
+
+    // Stepper Buttons (-10 / +10)
+    document.querySelectorAll('.btn-step').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const step = parseInt(btn.getAttribute('data-step'), 10);
+        const input = document.getElementById('inputTerjual');
+        const nextVal = Math.max(0, (parseInt(input.value, 10) || 0) + step);
+        input.value = nextVal;
+        updateLivePreview();
+      });
+    });
+
+    document.getElementById('inputTerjual').addEventListener('input', updateLivePreview);
+
+    document.getElementById('settingHarga').addEventListener('change', (e) => {
+      settings.harga = Math.max(100, parseInt(e.target.value, 10) || 1000);
+      saveState();
+      updateLivePreview();
+    });
+
+    document.getElementById('settingModal').addEventListener('change', (e) => {
+      settings.modal = Math.max(0, parseInt(e.target.value, 10) || 0);
+      saveState();
+      updateLivePreview();
+    });
+
+    document.getElementById('dayFilter').addEventListener('change', (e) => {
+      selectedDay = e.target.value;
+      currentPage = 1;
+      renderAll();
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      currentPage = 1;
+      renderTable(getFilteredRecords());
+    });
+
+    document.getElementById('btnPrevPage').addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable(getFilteredRecords());
+      }
+    });
+
+    document.getElementById('btnNextPage').addEventListener('click', () => {
+      currentPage++;
+      renderTable(getFilteredRecords());
+    });
+
+    // Export to Excel (.xlsx)
+    document.getElementById('btnExportExcel').addEventListener('click', () => {
+      const sorted = [...records].sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+      let running = 0;
+      const harianRows = sorted.map(r => {
+        running += r.untung;
+        return {
+          'Tanggal': r.tanggal,
+          'Hari': r.hari,
+          'Terjual (biji)': r.terjual,
+          'Pemasukan': r.pemasukan,
+          'Modal': r.modal,
+          'Untung': r.untung,
+          'Untung berjalan': running
         };
+      });
 
-        let trendChartInstance = null;
-        let monthlyChartInstance = null;
-        let dayOfWeekChartInstance = null;
+      const wb = XLSX.utils.book_new();
+      const wsHarian = XLSX.utils.json_to_sheet(harianRows);
+      XLSX.utils.book_append_sheet(wb, wsHarian, 'Harian');
+      XLSX.writeFile(wb, 'keuangan-gorengan-terbaru.xlsx');
+      showToast('File Excel berhasil diunduh');
+    });
 
-        // ==================== HELPER TANGGAL, HARI & FORMAT ====================
-        const HARI_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-        const BULAN_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-        const BULAN_PENDEK = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    // Upload Excel (.xlsx)
+    document.getElementById('excelUpload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+          const sheetName = workbook.SheetNames.includes('Harian') ? 'Harian' : workbook.SheetNames[0];
+          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-        function getDayAndMonthID(isoDate) {
-            const [y, m, d] = isoDate.split('-').map(Number);
-            const dt = new Date(y, m - 1, d);
-            const hari = HARI_ID[dt.getDay()];
-            const bulan = `${BULAN_ID[m - 1]} ${y}`;
-            const bulanShort = `${BULAN_PENDEK[m - 1]} '${String(y).slice(-2)}`;
-            return { hari, bulan, bulanShort, monthKey: `${y}-${String(m).padStart(2, '0')}` };
-        }
-
-        function formatRupiah(angka) {
-            const isNeg = angka < 0;
-            const absVal = Math.abs(Math.round(angka));
-            const formatted = absVal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-            return (isNeg ? '-Rp' : 'Rp') + formatted;
-        }
-
-        function formatNumber(angka) {
-            return Math.round(angka).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        }
-
-        function formatShortDate(isoDate) {
-            const [y, m, d] = isoDate.split('-');
-            return `${parseInt(d, 10)} ${BULAN_PENDEK[parseInt(m, 10) - 1]}`;
-        }
-
-        function formatFullDateID(isoDate) {
-            const [y, m, d] = isoDate.split('-');
-            return `${parseInt(d, 10)} ${BULAN_PENDEK[parseInt(m, 10) - 1]} ${y}`;
-        }
-
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            const bgColor = type === 'success' ? 'bg-slate-900 border-emerald-500 text-white' :
-                            type === 'warning' ? 'bg-amber-950 border-amber-500 text-amber-100' :
-                            'bg-rose-950 border-rose-500 text-rose-100';
-            const iconColor = type === 'success' ? 'text-emerald-400' :
-                              type === 'warning' ? 'text-amber-400' : 'text-rose-400';
-
-            toast.className = `toast-enter pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border-l-4 shadow-lg text-xs font-medium ${bgColor}`;
-            toast.innerHTML = `
-                <svg class="w-4 h-4 shrink-0 ${iconColor}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>${message}</span>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
-
-        // ==================== LOCALSTORAGE & ENRICHMENT ====================
-        function loadRecordsFromStorage() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        records = parsed;
-                        return;
-                    }
-                }
-            } catch (e) {
-                console.error('Gagal membaca localStorage:', e);
+          const parsed = [];
+          rows.forEach(row => {
+            let rawDate = row['Tanggal'];
+            let isoDate = '';
+            if (rawDate instanceof Date) {
+              const y = rawDate.getFullYear();
+              const m = String(rawDate.getMonth() + 1).padStart(2, '0');
+              const d = String(rawDate.getDate()).padStart(2, '0');
+              isoDate = `${y}-${m}-${d}`;
+            } else if (typeof rawDate === 'string' && rawDate.includes('-')) {
+              isoDate = rawDate.slice(0, 10);
             }
-            records = INITIAL_DATA.map(r => ({ ...r }));
-            saveRecordsToStorage();
-        }
+            const terjual = Number(row['Terjual (biji)'] ?? row['Terjual'] ?? 0);
+            const pemasukan = Number(row['Pemasukan'] ?? (terjual * settings.harga));
+            const modal = Number(row['Modal'] ?? settings.modal);
+            const untung = Number(row['Untung'] ?? (pemasukan - modal));
 
-        function saveRecordsToStorage() {
-            try {
-                records.sort((a, b) => a.tanggal.localeCompare(b.tanggal));
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-            } catch (e) {
-                console.error('Gagal menyimpan ke localStorage:', e);
+            if (isoDate) {
+              parsed.push({
+                tanggal: isoDate,
+                hari: row['Hari'] || getNamaHari(isoDate),
+                terjual,
+                pemasukan,
+                modal,
+                untung
+              });
             }
+          });
+
+          if (parsed.length > 0) {
+            records = parsed;
+            saveState();
+            selectedMonth = 'ALL';
+            selectedDay = 'ALL';
+            document.getElementById('dayFilter').value = 'ALL';
+            setDefaultNextDate();
+            renderAll();
+            showToast(`Berhasil memuat ${parsed.length} hari dari Excel`);
+          } else {
+            alert('Format kolom di file Excel tidak terbaca. Pastikan ada kolom Tanggal dan Terjual (biji).');
+          }
+        } catch (err) {
+          alert('Gagal membaca file Excel.');
         }
-
-        // Menghitung kolom turunan (hari, bulan, pemasukan, untung, untung_berjalan) & menerapkan Simulasi What-If jika aktif
-        function getEnrichedDataset() {
-            const sorted = [...records].sort((a, b) => a.tanggal.localeCompare(b.tanggal));
-            let runningProfit = 0;
-
-            return sorted.map(item => {
-                const meta = getDayAndMonthID(item.tanggal);
-                const hargaEfektif = state.simActive ? state.simHarga : (item.harga ?? 1000);
-                const modalEfektif = state.simActive ? state.simModal : (item.modal ?? 200000);
-                const pemasukan = item.terjual * hargaEfektif;
-                const untung = pemasukan - modalEfektif;
-                runningProfit += untung;
-
-                return {
-                    tanggal: item.tanggal,
-                    hari: meta.hari,
-                    bulan: meta.bulan,
-                    bulanShort: meta.bulanShort,
-                    monthKey: meta.monthKey,
-                    terjual: item.terjual,
-                    harga: hargaEfektif,
-                    modal: modalEfektif,
-                    pemasukan,
-                    untung,
-                    untung_berjalan: runningProfit
-                };
-            });
-        }
-
-        // ==================== SLICERS & FILTER DINAMIS ====================
-        function syncDateBoundsAndMonthSlicers(resetRange = false) {
-            const enriched = getEnrichedDataset();
-            if (enriched.length === 0) return;
-
-            const minDate = enriched[0].tanggal;
-            const maxDate = enriched[enriched.length - 1].tanggal;
-
-            const startEl = document.getElementById('date-start');
-            const endEl = document.getElementById('date-end');
-            startEl.min = minDate;
-            startEl.max = maxDate;
-            endEl.min = minDate;
-            endEl.max = maxDate;
-
-            if (resetRange || !state.dateStart || !state.dateEnd) {
-                state.dateStart = minDate;
-                state.dateEnd = maxDate;
-                startEl.value = minDate;
-                endEl.value = maxDate;
-            } else {
-                if (state.dateEnd < maxDate && resetRange) {
-                    state.dateEnd = maxDate;
-                    endEl.value = maxDate;
-                }
-            }
-
-            // Render tombol bulan secara dinamis dari data yang tersedia
-            const uniqueMonths = [];
-            const seen = new Set();
-            enriched.forEach(r => {
-                if (!seen.has(r.bulan)) {
-                    seen.add(r.bulan);
-                    uniqueMonths.push({ bulan: r.bulan, short: r.bulanShort });
-                }
-            });
-
-            // Bersihkan bulan terpilih yang sudah tidak ada di data
-            for (const m of state.selectedMonths) {
-                if (!seen.has(m)) state.selectedMonths.delete(m);
-            }
-
-            const monthContainer = document.getElementById('month-slicers');
-            const allActive = state.selectedMonths.size === 0;
-            let html = `<button type="button" data-month="ALL" onclick="toggleMonthSlicer('ALL')" class="${allActive ? 'slicer-btn-active' : 'slicer-btn-inactive'} px-2.5 py-1 rounded-lg text-xs font-medium border transition cursor-pointer">Semua</button>`;
-            uniqueMonths.forEach(m => {
-                const isAct = state.selectedMonths.has(m.bulan);
-                html += `<button type="button" data-month="${m.bulan}" onclick="toggleMonthSlicer('${m.bulan}')" class="${isAct ? 'slicer-btn-active' : 'slicer-btn-inactive'} px-2.5 py-1 rounded-lg text-xs font-medium border transition cursor-pointer">${m.short}</button>`;
-            });
-            monthContainer.innerHTML = html;
-
-            // Update header subtitle & footer
-            document.getElementById('header-subtitle').textContent =
-                `Periode ${formatFullDateID(minDate)} – ${formatFullDateID(maxDate)} (${enriched.length} Hari Operasional) • Tersimpan Lokal`;
-            document.getElementById('footer-period-info').textContent =
-                `Total Catatan: ${enriched.length} Hari Operasional (${formatFullDateID(minDate)} – ${formatFullDateID(maxDate)})`;
-        }
-
-        function getFilteredData() {
-            const dataset = getEnrichedDataset();
-            const dStart = document.getElementById('date-start').value || '1900-01-01';
-            const dEnd = document.getElementById('date-end').value || '2999-12-31';
-
-            return dataset.filter(item => {
-                const matchMonth = state.selectedMonths.size === 0 || state.selectedMonths.has(item.bulan);
-                const matchDay = state.selectedDays.size === 0 || state.selectedDays.has(item.hari);
-                const matchDate = item.tanggal >= dStart && item.tanggal <= dEnd;
-                return matchMonth && matchDay && matchDate;
-            });
-        }
-
-        function toggleMonthSlicer(month) {
-            if (month === 'ALL') {
-                state.selectedMonths.clear();
-            } else {
-                if (state.selectedMonths.has(month)) state.selectedMonths.delete(month);
-                else state.selectedMonths.add(month);
-            }
-            syncDateBoundsAndMonthSlicers(false);
-            state.currentPage = 1;
-            updateDashboard();
-        }
-
-        function toggleDaySlicer(day) {
-            if (day === 'ALL') {
-                state.selectedDays.clear();
-            } else {
-                if (state.selectedDays.has(day)) state.selectedDays.delete(day);
-                else state.selectedDays.add(day);
-            }
-            document.querySelectorAll('#day-slicers button').forEach(btn => {
-                const val = btn.getAttribute('data-day');
-                const isActive = (val === 'ALL' && state.selectedDays.size === 0) || state.selectedDays.has(val);
-                btn.className = `${isActive ? 'slicer-btn-active' : 'slicer-btn-inactive'} px-2 py-1 rounded-lg text-xs font-medium border transition cursor-pointer`;
-            });
-            state.currentPage = 1;
-            updateDashboard();
-        }
-
-        function onDateRangeChange() {
-            state.dateStart = document.getElementById('date-start').value;
-            state.dateEnd = document.getElementById('date-end').value;
-            state.currentPage = 1;
-            updateDashboard();
-        }
-
-        function resetFiltersOnly() {
-            state.selectedMonths.clear();
-            state.selectedDays.clear();
-            toggleDaySlicer('ALL');
-            syncDateBoundsAndMonthSlicers(true);
-            document.getElementById('table-search').value = '';
-            state.searchQuery = '';
-            state.tableQuickTab = 'all';
-            updateQuickTabUI();
-            state.currentPage = 1;
-            updateDashboard();
-            showToast('Filter tampilan direset ke seluruh periode data');
-        }
-
-        // ==================== SIMULASI WHAT-IF ====================
-        function toggleSimPanel() {
-            const panel = document.getElementById('sim-panel');
-            panel.classList.toggle('hidden');
-        }
-
-        function onSimulationSliderChange() {
-            state.simHarga = parseInt(document.getElementById('sim-harga-range').value, 10);
-            state.simModal = parseInt(document.getElementById('sim-modal-range').value, 10);
-            state.simActive = true;
-
-            document.getElementById('sim-harga-display').textContent = formatRupiah(state.simHarga);
-            document.getElementById('sim-modal-display').textContent = formatRupiah(state.simModal);
-            document.getElementById('sim-status-badge').textContent =
-                `Mode Simulasi Aktif (${formatRupiah(state.simHarga)}/biji • Modal ${formatRupiah(state.simModal)}/hari)`;
-            document.getElementById('sim-status-badge').className = 'text-xs font-semibold text-amber-400';
-
-            updateDashboard();
-        }
-
-        function resetSimulation() {
-            state.simActive = false;
-            state.simHarga = 1000;
-            state.simModal = 200000;
-            document.getElementById('sim-harga-range').value = 1000;
-            document.getElementById('sim-modal-range').value = 200000;
-            document.getElementById('sim-harga-display').textContent = 'Rp1.000';
-            document.getElementById('sim-modal-display').textContent = 'Rp200.000';
-            document.getElementById('sim-status-badge').textContent = 'Menampilkan angka aktual tersimpan';
-            document.getElementById('sim-status-badge').className = 'text-xs text-slate-400';
-            updateDashboard();
-        }
-
-        // ==================== MODAL INPUT / EDIT PENJUALAN ====================
-        function getNextSuggestedDate() {
-            if (records.length === 0) return '2026-11-13';
-            const sorted = [...records].sort((a, b) => a.tanggal.localeCompare(b.tanggal));
-            const lastDateStr = sorted[sorted.length - 1].tanggal;
-            const [y, m, d] = lastDateStr.split('-').map(Number);
-            const nextDt = new Date(y, m - 1, d + 1);
-            const ny = nextDt.getFullYear();
-            const nm = String(nextDt.getMonth() + 1).padStart(2, '0');
-            const nd = String(nextDt.getDate()).padStart(2, '0');
-            return `${ny}-${nm}-${nd}`;
-        }
-
-        function openInputModal(editDate = null) {
-            const modal = document.getElementById('input-modal');
-            const titleEl = document.getElementById('modal-form-title');
-            const origDateEl = document.getElementById('form-edit-original-date');
-            const tglEl = document.getElementById('form-tanggal');
-            const terjualEl = document.getElementById('form-terjual');
-            const hargaEl = document.getElementById('form-harga');
-            const modalEl = document.getElementById('form-modal');
-
-            if (editDate) {
-                const existing = records.find(r => r.tanggal === editDate);
-                if (existing) {
-                    titleEl.textContent = `Edit Catatan (${formatFullDateID(editDate)})`;
-                    origDateEl.value = editDate;
-                    tglEl.value = existing.tanggal;
-                    terjualEl.value = existing.terjual;
-                    hargaEl.value = existing.harga ?? 1000;
-                    modalEl.value = existing.modal ?? 200000;
-                }
-            } else {
-                titleEl.textContent = 'Tambah Catatan Penjualan Harian';
-                origDateEl.value = '';
-                tglEl.value = getNextSuggestedDate();
-                terjualEl.value = '';
-                hargaEl.value = 1000;
-                modalEl.value = 200000;
-            }
-
-            updateFormPreview();
-            modal.classList.remove('hidden');
-            setTimeout(() => terjualEl.focus(), 50);
-        }
-
-        function closeInputModal() {
-            document.getElementById('input-modal').classList.add('hidden');
-        }
-
-        function updateFormPreview() {
-            const tgl = document.getElementById('form-tanggal').value;
-            const origDate = document.getElementById('form-edit-original-date').value;
-            const terjual = parseInt(document.getElementById('form-terjual').value, 10) || 0;
-            const harga = parseInt(document.getElementById('form-harga').value, 10) || 0;
-            const modal = parseInt(document.getElementById('form-modal').value, 10) || 0;
-
-            if (tgl) {
-                const meta = getDayAndMonthID(tgl);
-                document.getElementById('form-day-badge').textContent = `${meta.hari} • ${meta.bulan}`;
-                const isDup = records.some(r => r.tanggal === tgl && r.tanggal !== origDate);
-                document.getElementById('form-duplicate-warning').classList.toggle('hidden', !isDup);
-            }
-
-            const pemasukan = terjual * harga;
-            const untung = pemasukan - modal;
-
-            document.getElementById('preview-pemasukan').textContent = formatRupiah(pemasukan);
-            document.getElementById('preview-untung').textContent = formatRupiah(untung);
-
-            const statusBadge = document.getElementById('preview-status-badge');
-            const untungEl = document.getElementById('preview-untung');
-            if (untung >= 0) {
-                statusBadge.textContent = 'PROFIT';
-                statusBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
-                untungEl.className = 'text-sm font-extrabold text-emerald-600';
-            } else {
-                statusBadge.textContent = 'RUGI';
-                statusBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700';
-                untungEl.className = 'text-sm font-extrabold text-rose-600';
-            }
-        }
-
-        function saveDailyEntry(event) {
-            event.preventDefault();
-            const origDate = document.getElementById('form-edit-original-date').value;
-            const tanggal = document.getElementById('form-tanggal').value;
-            const terjual = parseInt(document.getElementById('form-terjual').value, 10);
-            const harga = parseInt(document.getElementById('form-harga').value, 10);
-            const modal = parseInt(document.getElementById('form-modal').value, 10);
-
-            if (!tanggal || isNaN(terjual) || terjual < 0) return;
-
-            // Jika mode edit dan tanggal diubah, hapus entri tanggal lama terlebih dahulu
-            if (origDate && origDate !== tanggal) {
-                records = records.filter(r => r.tanggal !== origDate);
-            }
-
-            const existingIdx = records.findIndex(r => r.tanggal === tanggal);
-            const newEntry = { tanggal, terjual, harga, modal };
-
-            if (existingIdx >= 0) {
-                records[existingIdx] = newEntry;
-                showToast(`Catatan ${formatFullDateID(tanggal)} berhasil diperbarui (${terjual} biji)`);
-            } else {
-                records.push(newEntry);
-                showToast(`Catatan baru ${formatFullDateID(tanggal)} ditambahkan (${terjual} biji)`);
-            }
-
-            saveRecordsToStorage();
-
-            // Perluas rentang tanggal filter otomatis jika entri baru berada di luar rentang saat ini
-            const startEl = document.getElementById('date-start');
-            const endEl = document.getElementById('date-end');
-            if (tanggal < startEl.value) {
-                state.dateStart = tanggal;
-                startEl.value = tanggal;
-            }
-            if (tanggal > endEl.value) {
-                state.dateEnd = tanggal;
-                endEl.value = tanggal;
-            }
-
-            syncDateBoundsAndMonthSlicers(false);
-            closeInputModal();
-            updateDashboard();
-        }
-
-        // ==================== HAPUS & RESET KONFIRMASI ====================
-        let pendingConfirmAction = null;
-
-        function openDeleteConfirmModal(tanggal) {
-            document.getElementById('confirm-modal-title').textContent = 'Hapus Catatan Harian?';
-            document.getElementById('confirm-modal-message').textContent =
-                `Catatan penjualan pada ${formatFullDateID(tanggal)} akan dihapus permanen dan saldo berjalan akan dihitung ulang.`;
-            pendingConfirmAction = () => {
-                records = records.filter(r => r.tanggal !== tanggal);
-                saveRecordsToStorage();
-                syncDateBoundsAndMonthSlicers(false);
-                updateDashboard();
-                showToast(`Catatan ${formatFullDateID(tanggal)} telah dihapus`, 'warning');
-            };
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        }
-
-        function openResetConfirmModal() {
-            document.getElementById('confirm-modal-title').textContent = 'Reset ke Data Awal Excel?';
-            document.getElementById('confirm-modal-message').textContent =
-                'Semua entri baru atau perubahan lokal akan dihapus dan dikembalikan ke 92 hari data awal dari keuangan-gorengan.xlsx.';
-            pendingConfirmAction = () => {
-                records = INITIAL_DATA.map(r => ({ ...r }));
-                saveRecordsToStorage();
-                resetSimulation();
-                state.selectedMonths.clear();
-                state.selectedDays.clear();
-                toggleDaySlicer('ALL');
-                syncDateBoundsAndMonthSlicers(true);
-                updateDashboard();
-                showToast('Data berhasil dikembalikan ke 92 hari awal Excel');
-            };
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        }
-
-        function closeConfirmModal() {
-            document.getElementById('confirm-modal').classList.add('hidden');
-            pendingConfirmAction = null;
-        }
-
-        document.getElementById('confirm-modal-action-btn').addEventListener('click', () => {
-            if (typeof pendingConfirmAction === 'function') {
-                pendingConfirmAction();
-            }
-            closeConfirmModal();
-        });
-
-        // ==================== IMPORT & EXPORT EXCEL (.XLSX) ====================
-        function parseFlexibleDate(val) {
-            if (!val) return null;
-            if (typeof val === 'number') {
-                // Serial date Excel
-                const utcDays = Math.floor(val - 25569);
-                const dt = new Date(utcDays * 86400 * 1000);
-                const y = dt.getUTCFullYear();
-                const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
-                const d = String(dt.getUTCDate()).padStart(2, '0');
-                return `${y}-${m}-${d}`;
-            }
-            const str = String(val).trim();
-            if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-            // Format DD/MM/YYYY atau DD-MM-YYYY
-            const dmy = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-            if (dmy) {
-                return `${dmy[3]}-${dmy[2].padStart(2, '0')}-${dmy[1].padStart(2, '0')}`;
-            }
-            return null;
-        }
-
-        function handleExcelImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-
-                    // Pilih sheet 'Harian' jika ada, atau sheet pertama
-                    const sheetName = workbook.SheetNames.includes('Harian')
-                        ? 'Harian'
-                        : workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-
-                    // Cari baris header (yang mengandung kata 'Tanggal' & 'Terjual' atau 'Biji')
-                    let headerRowIdx = -1;
-                    let colTanggal = -1;
-                    let colTerjual = -1;
-                    let colPemasukan = -1;
-                    let colModal = -1;
-
-                    for (let i = 0; i < Math.min(rows.length, 15); i++) {
-                        const rowLower = rows[i].map(c => String(c).toLowerCase().trim());
-                        const idxTgl = rowLower.findIndex(c => c.includes('tanggal'));
-                        const idxTrj = rowLower.findIndex(c => c.includes('terjual') || c.includes('biji'));
-                        if (idxTgl !== -1 && idxTrj !== -1) {
-                            headerRowIdx = i;
-                            colTanggal = idxTgl;
-                            colTerjual = idxTrj;
-                            colPemasukan = rowLower.findIndex(c => c.includes('pemasukan'));
-                            colModal = rowLower.findIndex(c => c.includes('modal'));
-                            break;
-                        }
-                    }
-
-                    if (headerRowIdx === -1) {
-                        showToast('Format kolom Tanggal & Terjual tidak ditemukan di Excel', 'error');
-                        return;
-                    }
-
-                    const importedMap = new Map();
-                    for (let r = headerRowIdx + 1; r < rows.length; r++) {
-                        const row = rows[r];
-                        const isoDate = parseFlexibleDate(row[colTanggal]);
-                        const terjual = Number(row[colTerjual]);
-                        if (!isoDate || isNaN(terjual) || row[colTerjual] === '') continue;
-
-                        const pemasukanVal = colPemasukan !== -1 ? Number(row[colPemasukan]) : NaN;
-                        const modalVal = colModal !== -1 ? Number(row[colModal]) : NaN;
-
-                        const harga = (!isNaN(pemasukanVal) && terjual > 0)
-                            ? Math.round(pemasukanVal / terjual)
-                            : 1000;
-                        const modal = (!isNaN(modalVal) && modalVal >= 0) ? modalVal : 200000;
-
-                        importedMap.set(isoDate, { tanggal: isoDate, terjual, harga, modal });
-                    }
-
-                    if (importedMap.size === 0) {
-                        showToast('Tidak ada baris data valid yang dapat diimpor', 'warning');
-                        return;
-                    }
-
-                    records = Array.from(importedMap.values()).sort((a, b) => a.tanggal.localeCompare(b.tanggal));
-                    saveRecordsToStorage();
-                    resetSimulation();
-                    state.selectedMonths.clear();
-                    state.selectedDays.clear();
-                    toggleDaySlicer('ALL');
-                    syncDateBoundsAndMonthSlicers(true);
-                    updateDashboard();
-                    showToast(`Berhasil mengimpor ${records.length} hari operasional dari ${file.name}`);
-                } catch (err) {
-                    console.error(err);
-                    showToast('Gagal membaca file Excel. Pastikan format .xlsx valid.', 'error');
-                } finally {
-                    event.target.value = '';
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function exportToExcel() {
-            const enriched = getEnrichedDataset();
-            if (enriched.length === 0) {
-                showToast('Tidak ada data untuk diekspor', 'warning');
-                return;
-            }
-
-            const totalTerjual = enriched.reduce((s, r) => s + r.terjual, 0);
-            const totalPemasukan = enriched.reduce((s, r) => s + r.pemasukan, 0);
-            const totalModal = enriched.reduce((s, r) => s + r.modal, 0);
-            const totalUntung = enriched.reduce((s, r) => s + r.untung, 0);
-
-            // Sheet 1: Ringkasan
-            const summaryRows = [
-                ['RINGKASAN KEUANGAN USAHA GORENGAN (EXPORT REAL-TIME)'],
-                [''],
-                ['Metrik Utama', 'Nilai'],
-                ['Total Hari Operasional', enriched.length],
-                ['Periode Awal', enriched[0].tanggal],
-                ['Periode Akhir', enriched[enriched.length - 1].tanggal],
-                ['Total Gorengan Terjual (Biji)', totalTerjual],
-                ['Total Pemasukan Kotor (Rp)', totalPemasukan],
-                ['Total Modal Operasional (Rp)', totalModal],
-                ['Total Untung Bersih (Rp)', totalUntung],
-                ['Rata-rata Terjual / Hari (Biji)', Math.round(totalTerjual / enriched.length)],
-                ['Rata-rata Untung / Hari (Rp)', Math.round(totalUntung / enriched.length)]
-            ];
-
-            // Sheet 2: Harian
-            const dailyHeader = ['Tanggal', 'Hari', 'Bulan', 'Terjual (biji)', 'Harga/Biji (Rp)', 'Pemasukan (Rp)', 'Modal (Rp)', 'Untung (Rp)', 'Untung Berjalan (Rp)'];
-            const dailyRows = enriched.map(r => [
-                r.tanggal,
-                r.hari,
-                r.bulan,
-                r.terjual,
-                r.harga,
-                r.pemasukan,
-                r.modal,
-                r.untung,
-                r.untung_berjalan
-            ]);
-
-            const wb = XLSX.utils.book_new();
-            const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
-            const wsDaily = XLSX.utils.aoa_to_sheet([dailyHeader, ...dailyRows]);
-
-            wsSummary['!cols'] = [{ wch: 32 }, { wch: 22 }];
-            wsDaily['!cols'] = [
-                { wch: 14 }, { wch: 12 }, { wch: 18 }, { wch: 15 },
-                { wch: 15 }, { wch: 18 }, { wch: 16 }, { wch: 18 }, { wch: 22 }
-            ];
-
-            XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan');
-            XLSX.utils.book_append_sheet(wb, wsDaily, 'Harian');
-
-            const todayStr = new Date().toISOString().slice(0, 10);
-            XLSX.writeFile(wb, `keuangan-gorengan-update-${todayStr}.xlsx`);
-            showToast('File Excel (.xlsx) berhasil diunduh!');
-        }
-
-        // ==================== KPI CARDS & MINI SPARKLINE ====================
-        function updateKPICards(filtered) {
-            const count = filtered.length;
-            document.getElementById('active-filter-count').textContent = `${count} Hari Terpilih`;
-
-            if (count === 0) {
-                document.getElementById('kpi-pemasukan').textContent = 'Rp0';
-                document.getElementById('kpi-pemasukan-sub').textContent = 'Tidak ada data pada filter ini';
-                document.getElementById('kpi-untung').textContent = 'Rp0';
-                document.getElementById('kpi-untung-sub').textContent = 'Margin 0%';
-                document.getElementById('kpi-modal').textContent = 'Rp0';
-                document.getElementById('kpi-modal-sub').textContent = 'ROI 0%';
-                document.getElementById('kpi-terjual').textContent = '0 biji';
-                document.getElementById('kpi-terjual-sub').textContent = 'Rata-rata 0 biji/hari';
-                document.getElementById('kpi-avg-untung').textContent = 'Rp0';
-                document.getElementById('kpi-avg-untung-sub').textContent = 'Tertinggi Rp0 • Terendah Rp0';
-                document.getElementById('kpi-sparkline').innerHTML = '';
-                return;
-            }
-
-            const totalPemasukan = filtered.reduce((acc, r) => acc + r.pemasukan, 0);
-            const totalUntung = filtered.reduce((acc, r) => acc + r.untung, 0);
-            const totalModal = filtered.reduce((acc, r) => acc + r.modal, 0);
-            const totalTerjual = filtered.reduce((acc, r) => acc + r.terjual, 0);
-
-            const avgPemasukan = totalPemasukan / count;
-            const avgUntung = totalUntung / count;
-            const avgModal = totalModal / count;
-            const avgTerjual = totalTerjual / count;
-            const avgHarga = totalTerjual > 0 ? totalPemasukan / totalTerjual : 1000;
-
-            const marginPct = totalPemasukan > 0 ? ((totalUntung / totalPemasukan) * 100).toFixed(1).replace('.', ',') : '0,0';
-            const roiPct = totalModal > 0 ? ((totalUntung / totalModal) * 100).toFixed(1).replace('.', ',') : '0,0';
-            const bepBiji = avgHarga > 0 ? Math.ceil(avgModal / avgHarga) : 0;
-
-            const profits = filtered.map(r => r.untung);
-            const maxProfit = Math.max(...profits);
-            const minProfit = Math.min(...profits);
-
-            document.getElementById('kpi-pemasukan').textContent = formatRupiah(totalPemasukan);
-            document.getElementById('kpi-pemasukan-sub').textContent = `${count} hari • Rata-rata ${formatRupiah(avgPemasukan)}/hari`;
-
-            document.getElementById('kpi-untung').textContent = formatRupiah(totalUntung);
-            document.getElementById('kpi-untung-sub').innerHTML = `Margin <span class="font-semibold text-emerald-600">${marginPct}%</span> • ${formatRupiah(avgUntung)}/hari`;
-
-            document.getElementById('kpi-modal').textContent = formatRupiah(totalModal);
-            document.getElementById('kpi-modal-sub').innerHTML = `Rata-rata ${formatRupiah(avgModal)}/hr • ROI <span class="font-semibold text-emerald-600">${roiPct}%</span>`;
-
-            document.getElementById('kpi-terjual').textContent = `${formatNumber(totalTerjual)} biji`;
-            document.getElementById('kpi-terjual-sub').textContent = `Rata-rata ${formatNumber(avgTerjual)} biji/hari • BEP ${formatNumber(bepBiji)} biji`;
-
-            document.getElementById('kpi-avg-untung').textContent = formatRupiah(avgUntung);
-            document.getElementById('kpi-avg-untung-sub').textContent = `Tertinggi ${formatRupiah(maxProfit)} • Terendah ${formatRupiah(minProfit)}`;
-
-            renderSparkline(profits);
-        }
-
-        function renderSparkline(values) {
-            const svg = document.getElementById('kpi-sparkline');
-            if (values.length < 2) {
-                svg.innerHTML = '';
-                return;
-            }
-            const width = 120;
-            const height = 28;
-            const minVal = Math.min(...values);
-            const maxVal = Math.max(...values);
-            const range = maxVal - minVal || 1;
-
-            const points = values.map((val, idx) => {
-                const x = (idx / (values.length - 1)) * width;
-                const y = height - 3 - ((val - minVal) / range) * (height - 6);
-                return `${x.toFixed(1)},${y.toFixed(1)}`;
-            }).join(' ');
-
-            svg.innerHTML = `
-                <defs>
-                    <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
-                        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
-                    </linearGradient>
-                </defs>
-                <polygon points="0,${height} ${points} ${width},${height}" fill="url(#sparkGrad)" />
-                <polyline fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" points="${points}" />
-            `;
-        }
-
-        // ==================== GRAFIK 1: TREN HARIAN / AKUMULASI ====================
-        function setTrendMode(mode) {
-            state.trendMode = mode;
-            const btnDaily = document.getElementById('btn-trend-daily');
-            const btnCum = document.getElementById('btn-trend-cumulative');
-            const title = document.getElementById('trend-chart-title');
-            const subtitle = document.getElementById('trend-chart-subtitle');
-
-            if (mode === 'daily') {
-                btnDaily.className = 'px-3 py-1.5 rounded-md text-xs font-semibold bg-white text-[#1e3a8a] shadow-sm transition cursor-pointer';
-                btnCum.className = 'px-3 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
-                title.textContent = 'TREN PEMASUKAN, UNTUNG & MODAL HARIAN';
-                subtitle.textContent = 'Fluktuasi harian pendapatan kotor, laba bersih, dan modal operasional';
-            } else {
-                btnCum.className = 'px-3 py-1.5 rounded-md text-xs font-semibold bg-white text-[#1e3a8a] shadow-sm transition cursor-pointer';
-                btnDaily.className = 'px-3 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
-                title.textContent = 'TREN AKUMULASI UNTUNG BERJALAN';
-                subtitle.textContent = 'Pertumbuhan kumulatif laba bersih dan pendapatan kotor pada periode terpilih';
-            }
-            updateTrendChart(getFilteredData());
-        }
-
-        function updateTrendChart(filtered) {
-            const ctx = document.getElementById('trendChart').getContext('2d');
-            if (trendChartInstance) trendChartInstance.destroy();
-
-            const labels = filtered.map(r => formatShortDate(r.tanggal));
-            let datasets = [];
-
-            if (state.trendMode === 'daily') {
-                const gradPemasukan = ctx.createLinearGradient(0, 0, 0, 320);
-                gradPemasukan.addColorStop(0, 'rgba(30, 58, 138, 0.22)');
-                gradPemasukan.addColorStop(1, 'rgba(30, 58, 138, 0.0)');
-
-                const gradUntung = ctx.createLinearGradient(0, 0, 0, 320);
-                gradUntung.addColorStop(0, 'rgba(16, 185, 129, 0.28)');
-                gradUntung.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
-
-                datasets = [
-                    {
-                        label: 'Pemasukan Kotor',
-                        data: filtered.map(r => r.pemasukan),
-                        borderColor: '#1e3a8a',
-                        backgroundColor: gradPemasukan,
-                        borderWidth: 2.2,
-                        fill: true,
-                        tension: 0.32,
-                        pointRadius: filtered.length > 45 ? 1.5 : 3.5,
-                        pointHoverRadius: 5
-                    },
-                    {
-                        label: 'Untung Bersih',
-                        data: filtered.map(r => r.untung),
-                        borderColor: '#10b981',
-                        backgroundColor: gradUntung,
-                        borderWidth: 2.2,
-                        fill: true,
-                        tension: 0.32,
-                        pointRadius: filtered.length > 45 ? 1.5 : 3.5,
-                        pointHoverRadius: 5
-                    },
-                    {
-                        label: 'Modal Harian',
-                        data: filtered.map(r => r.modal),
-                        borderColor: '#f59e0b',
-                        borderWidth: 1.8,
-                        borderDash: [5, 5],
-                        fill: false,
-                        pointRadius: 0,
-                        pointHoverRadius: 4
-                    }
-                ];
-            } else {
-                let cumPemasukan = 0, cumUntung = 0, cumModal = 0;
-                const arrPemasukan = [], arrUntung = [], arrModal = [];
-                filtered.forEach(r => {
-                    cumPemasukan += r.pemasukan;
-                    cumUntung += r.untung;
-                    cumModal += r.modal;
-                    arrPemasukan.push(cumPemasukan);
-                    arrUntung.push(cumUntung);
-                    arrModal.push(cumModal);
-                });
-
-                const gradCumUntung = ctx.createLinearGradient(0, 0, 0, 320);
-                gradCumUntung.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
-                gradCumUntung.addColorStop(1, 'rgba(16, 185, 129, 0.02)');
-
-                datasets = [
-                    {
-                        label: 'Akumulasi Pemasukan',
-                        data: arrPemasukan,
-                        borderColor: '#1e3a8a',
-                        borderWidth: 2.3,
-                        fill: false,
-                        tension: 0.25,
-                        pointRadius: 0,
-                        pointHoverRadius: 5
-                    },
-                    {
-                        label: 'Akumulasi Untung Bersih',
-                        data: arrUntung,
-                        borderColor: '#10b981',
-                        backgroundColor: gradCumUntung,
-                        borderWidth: 2.6,
-                        fill: true,
-                        tension: 0.25,
-                        pointRadius: 0,
-                        pointHoverRadius: 5
-                    },
-                    {
-                        label: 'Akumulasi Modal',
-                        data: arrModal,
-                        borderColor: '#f59e0b',
-                        borderWidth: 1.8,
-                        borderDash: [5, 5],
-                        fill: false,
-                        pointRadius: 0,
-                        pointHoverRadius: 4
-                    }
-                ];
-            }
-
-            trendChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: { labels, datasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            align: 'end',
-                            labels: { usePointStyle: true, boxWidth: 8, font: { size: 11, family: 'Inter' } }
-                        },
-                        tooltip: {
-                            backgroundColor: '#0f172a',
-                            padding: 10,
-                            cornerRadius: 8,
-                            callbacks: {
-                                title: items => {
-                                    const row = filtered[items[0].dataIndex];
-                                    return row ? `${row.hari}, ${formatFullDateID(row.tanggal)} (${row.terjual} biji)` : '';
-                                },
-                                label: ctx => ` ${ctx.dataset.label}: ${formatRupiah(ctx.parsed.y)}`
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: { maxTicksLimit: 12, font: { size: 10, family: 'Inter' }, color: '#64748b' }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#f1f5f9' },
-                            ticks: {
-                                font: { size: 10, family: 'Inter' },
-                                color: '#64748b',
-                                callback: val => {
-                                    if (Math.abs(val) >= 1000000) return 'Rp' + (val / 1000000).toFixed(1).replace('.0', '') + 'jt';
-                                    if (Math.abs(val) >= 1000) return 'Rp' + (val / 1000) + 'rb';
-                                    return 'Rp' + val;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ==================== GRAFIK 2: PERBANDINGAN BULANAN DINAMIS ====================
-        function updateMonthlyChart(filtered) {
-            const monthMap = new Map();
-            filtered.forEach(r => {
-                if (!monthMap.has(r.bulan)) {
-                    monthMap.set(r.bulan, {
-                        key: r.bulan,
-                        label: r.bulanShort,
-                        monthKey: r.monthKey,
-                        days: 0,
-                        pemasukan: 0,
-                        modal: 0,
-                        untung: 0
-                    });
-                }
-                const entry = monthMap.get(r.bulan);
-                entry.days += 1;
-                entry.pemasukan += r.pemasukan;
-                entry.modal += r.modal;
-                entry.untung += r.untung;
-            });
-
-            const monthlyStats = Array.from(monthMap.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
-            const totalAllUntung = monthlyStats.reduce((acc, m) => acc + m.untung, 0);
-
-            monthlyStats.forEach(st => {
-                st.sharePct = totalAllUntung > 0 ? ((st.untung / totalAllUntung) * 100).toFixed(1) : '0.0';
-            });
-
-            const summaryContainer = document.getElementById('monthly-summary-cards');
-            summaryContainer.innerHTML = monthlyStats.map(st => `
-                <div class="bg-slate-50 rounded-lg p-2 border border-slate-200/70">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-slate-700">${st.label}</span>
-                        <span class="text-[10px] font-semibold px-1.5 rounded bg-emerald-100 text-emerald-700">${st.sharePct}%</span>
-                    </div>
-                    <div class="text-xs font-extrabold text-emerald-600 mt-1">${formatRupiah(st.untung)}</div>
-                    <div class="text-[10px] text-slate-500">${st.days} hari ops</div>
-                </div>
-            `).join('');
-
-            const ctx = document.getElementById('monthlyChart').getContext('2d');
-            if (monthlyChartInstance) monthlyChartInstance.destroy();
-
-            monthlyChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: monthlyStats.map(s => `${s.label} (${s.days} hr)`),
-                    datasets: [
-                        {
-                            label: 'Pemasukan',
-                            data: monthlyStats.map(s => s.pemasukan),
-                            backgroundColor: '#1e3a8a',
-                            borderRadius: 5,
-                            barPercentage: 0.75,
-                            categoryPercentage: 0.72
-                        },
-                        {
-                            label: 'Untung Bersih',
-                            data: monthlyStats.map(s => s.untung),
-                            backgroundColor: '#10b981',
-                            borderRadius: 5,
-                            barPercentage: 0.75,
-                            categoryPercentage: 0.72
-                        },
-                        {
-                            label: 'Modal',
-                            data: monthlyStats.map(s => s.modal),
-                            backgroundColor: '#94a3b8',
-                            borderRadius: 5,
-                            barPercentage: 0.75,
-                            categoryPercentage: 0.72
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            align: 'end',
-                            labels: { usePointStyle: true, boxWidth: 8, font: { size: 11, family: 'Inter' } }
-                        },
-                        tooltip: {
-                            backgroundColor: '#0f172a',
-                            padding: 10,
-                            cornerRadius: 8,
-                            callbacks: {
-                                label: context => {
-                                    const st = monthlyStats[context.dataIndex];
-                                    const valStr = formatRupiah(context.parsed.y);
-                                    if (context.dataset.label === 'Untung Bersih') {
-                                        return ` Untung Bersih: ${valStr} (Kontribusi ${st.sharePct}%)`;
-                                    }
-                                    return ` ${context.dataset.label}: ${valStr}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { size: 10, family: 'Inter', weight: '600' }, color: '#475569' }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#f1f5f9' },
-                            ticks: {
-                                font: { size: 10, family: 'Inter' },
-                                color: '#64748b',
-                                callback: val => 'Rp' + (val / 1000000).toFixed(0) + 'jt'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ==================== GRAFIK 3: DISTRIBUSI HARI SENIN–MINGGU ====================
-        function setDayChartMode(mode) {
-            state.dayChartMode = mode;
-            const btnProfit = document.getElementById('btn-day-profit');
-            const btnAvg = document.getElementById('btn-day-avg');
-            const title = document.getElementById('day-chart-title');
-            const subtitle = document.getElementById('day-chart-subtitle');
-
-            if (mode === 'profit') {
-                btnProfit.className = 'px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-emerald-700 shadow-sm transition cursor-pointer';
-                btnAvg.className = 'px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
-                title.textContent = 'DISTRIBUSI UNTUNG PER HARI (SENIN–MINGGU)';
-                subtitle.textContent = 'Perbandingan laba bersih dan rata-rata penjualan per hari';
-            } else {
-                btnAvg.className = 'px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-[#1e3a8a] shadow-sm transition cursor-pointer';
-                btnProfit.className = 'px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
-                title.textContent = 'RATA-RATA GORENGAN TERJUAL PER HARI';
-                subtitle.textContent = 'Rata-rata kuantitas gorengan terjual berdasarkan hari dalam seminggu';
-            }
-            updateDayOfWeekChart(getFilteredData());
-        }
-
-        function updateDayOfWeekChart(filtered) {
-            const daysOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-            const dayStats = daysOrder.map(dayName => {
-                const rows = filtered.filter(r => r.hari === dayName);
-                const totalUntung = rows.reduce((s, r) => s + r.untung, 0);
-                const totalBiji = rows.reduce((s, r) => s + r.terjual, 0);
-                const avgBiji = rows.length > 0 ? totalBiji / rows.length : 0;
-                return { day: dayName, count: rows.length, totalUntung, avgBiji };
-            });
-
-            const validDays = dayStats.filter(d => d.count > 0);
-            let bestAvgDay = { day: '-', avgBiji: 0 };
-            let bestTotalDay = { day: '-', totalUntung: 0, count: 0 };
-
-            if (validDays.length > 0) {
-                bestAvgDay = [...validDays].sort((a, b) => b.avgBiji - a.avgBiji)[0];
-                bestTotalDay = [...validDays].sort((a, b) => b.totalUntung - a.totalUntung)[0];
-            }
-
-            const insightsBox = document.getElementById('day-insights-box');
-            insightsBox.innerHTML = `
-                <div class="flex items-center justify-between bg-emerald-50/80 px-3 py-2 rounded-lg border border-emerald-100">
-                    <span class="text-slate-600">Total Untung Tertinggi:</span>
-                    <span class="font-bold text-emerald-700">${bestTotalDay.day} (${formatRupiah(bestTotalDay.totalUntung)} • ${bestTotalDay.count} hari)</span>
-                </div>
-                <div class="flex items-center justify-between bg-blue-50/80 px-3 py-2 rounded-lg border border-blue-100">
-                    <span class="text-slate-600">Rata-Rata Penjualan Tertinggi:</span>
-                    <span class="font-bold text-[#1e3a8a]">${bestAvgDay.day} (${Math.round(bestAvgDay.avgBiji)} biji/hari)</span>
-                </div>
-                <div class="grid grid-cols-7 gap-1 pt-1 text-center">
-                    ${dayStats.map(d => `
-                        <div class="bg-slate-50 rounded p-1 border border-slate-200/70">
-                            <div class="text-[10px] font-bold text-slate-600">${d.day.slice(0, 3)}</div>
-                            <div class="text-[11px] font-extrabold text-slate-800">${Math.round(d.avgBiji)}</div>
-                            <div class="text-[9px] text-slate-400">${d.count}x</div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-
-            const ctx = document.getElementById('dayOfWeekChart').getContext('2d');
-            if (dayOfWeekChartInstance) dayOfWeekChartInstance.destroy();
-
-            const isProfitMode = state.dayChartMode === 'profit';
-            const dataValues = dayStats.map(d => isProfitMode ? d.totalUntung : Number(d.avgBiji.toFixed(1)));
-            const maxVal = Math.max(...dataValues);
-
-            const bgColors = dataValues.map(v => {
-                if (v === maxVal && v > 0) return isProfitMode ? '#10b981' : '#1e3a8a';
-                return isProfitMode ? '#6ee7b7' : '#60a5fa';
-            });
-
-            dayOfWeekChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: dayStats.map(d => `${d.day} (${d.count} hr)`),
-                    datasets: [{
-                        label: isProfitMode ? 'Total Untung Bersih' : 'Rata-rata Biji Terjual',
-                        data: dataValues,
-                        backgroundColor: bgColors,
-                        borderRadius: 6,
-                        barThickness: 18
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#0f172a',
-                            padding: 9,
-                            cornerRadius: 8,
-                            callbacks: {
-                                label: context => {
-                                    const st = dayStats[context.dataIndex];
-                                    if (isProfitMode) {
-                                        return ` Total Untung: ${formatRupiah(st.totalUntung)} (Rata-rata ${Math.round(st.avgBiji)} biji/hr)`;
-                                    }
-                                    return ` Rata-rata: ${st.avgBiji.toFixed(1)} biji/hari (Total Untung ${formatRupiah(st.totalUntung)})`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: isProfitMode,
-                            min: isProfitMode ? 0 : undefined,
-                            grid: { color: '#f1f5f9' },
-                            ticks: {
-                                font: { size: 10, family: 'Inter' },
-                                color: '#64748b',
-                                callback: val => isProfitMode ? 'Rp' + (val / 1000000).toFixed(1) + 'jt' : val + ' bj'
-                            }
-                        },
-                        y: {
-                            grid: { display: false },
-                            ticks: { font: { size: 11, family: 'Inter', weight: '600' }, color: '#334155' }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ==================== TABEL INTERAKTIF, CRUD & PAGINASI ====================
-        function setTableQuickTab(tab) {
-            state.tableQuickTab = tab;
-            state.currentPage = 1;
-            updateQuickTabUI();
-            updateTable(getFilteredData());
-        }
-
-        function updateQuickTabUI() {
-            ['all', 'top10', 'bottom'].forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                btn.className = t === state.tableQuickTab
-                    ? 'px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-[#1e3a8a] shadow-sm transition cursor-pointer'
-                    : 'px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer';
-            });
-        }
-
-        function onSearchInput() {
-            state.searchQuery = document.getElementById('table-search').value.toLowerCase().trim();
-            state.currentPage = 1;
-            updateTable(getFilteredData());
-        }
-
-        function sortTable(col) {
-            if (state.sortColumn === col) {
-                state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                state.sortColumn = col;
-                state.sortDirection = 'desc';
-            }
-            updateSortIcons();
-            updateTable(getFilteredData());
-        }
-
-        function updateSortIcons() {
-            ['tanggal', 'hari', 'terjual', 'pemasukan', 'modal', 'untung', 'untung_berjalan'].forEach(c => {
-                const el = document.getElementById(`sort-icon-${c}`);
-                if (c === state.sortColumn) {
-                    el.textContent = state.sortDirection === 'asc' ? '↑' : '↓';
-                    el.className = 'text-[#1e3a8a] font-bold';
-                } else {
-                    el.textContent = '↕';
-                    el.className = 'text-slate-400';
-                }
-            });
-        }
-
-        function changePageSize() {
-            state.pageSize = parseInt(document.getElementById('page-size').value, 10);
-            state.currentPage = 1;
-            updateTable(getFilteredData());
-        }
-
-        function goToPage(page) {
-            state.currentPage = page;
-            updateTable(getFilteredData());
-        }
-
-        function updateTable(filtered) {
-            document.getElementById('tab-all-count').textContent = filtered.length;
-            let workingData = [...filtered];
-
-            if (state.tableQuickTab === 'top10') {
-                workingData = [...workingData].sort((a, b) => b.terjual - a.terjual).slice(0, 10);
-            } else if (state.tableQuickTab === 'bottom') {
-                workingData = [...workingData].sort((a, b) => a.terjual - b.terjual).slice(0, 10);
-            }
-
-            if (state.searchQuery) {
-                workingData = workingData.filter(r =>
-                    r.tanggal.toLowerCase().includes(state.searchQuery) ||
-                    r.hari.toLowerCase().includes(state.searchQuery) ||
-                    r.bulan.toLowerCase().includes(state.searchQuery) ||
-                    formatFullDateID(r.tanggal).toLowerCase().includes(state.searchQuery)
-                );
-            }
-
-            workingData.sort((a, b) => {
-                const valA = a[state.sortColumn];
-                const valB = b[state.sortColumn];
-                if (typeof valA === 'string') {
-                    return state.sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                }
-                return state.sortDirection === 'asc' ? valA - valB : valB - valA;
-            });
-
-            const totalItems = workingData.length;
-            const totalPages = Math.max(1, Math.ceil(totalItems / state.pageSize));
-            if (state.currentPage > totalPages) state.currentPage = totalPages;
-
-            const startIdx = (state.currentPage - 1) * state.pageSize;
-            const endIdx = Math.min(startIdx + state.pageSize, totalItems);
-            const pageItems = workingData.slice(startIdx, endIdx);
-
-            document.getElementById('table-showing-info').textContent =
-                totalItems === 0 ? '0 baris' : `${startIdx + 1}–${endIdx} dari ${totalItems}`;
-
-            const tbody = document.getElementById('data-table-body');
-            if (pageItems.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="py-8 text-center text-slate-400 text-xs">Tidak ada data penjualan yang sesuai dengan filter.</td>
-                    </tr>
-                `;
-            } else {
-                tbody.innerHTML = pageItems.map(row => {
-                    const isHigh = row.terjual >= 580;
-                    const isLow = row.terjual <= 510;
-                    const badgeClass = isHigh
-                        ? 'bg-emerald-100 text-emerald-700 font-bold'
-                        : isLow
-                            ? 'bg-amber-100 text-amber-700 font-semibold'
-                            : 'bg-slate-100 text-slate-700 font-semibold';
-
-                    return `
-                        <tr class="hover:bg-blue-50/40 transition group">
-                            <td class="py-2 px-3 font-medium text-slate-800 whitespace-nowrap">${formatFullDateID(row.tanggal)}</td>
-                            <td class="py-2 px-3 text-slate-600 whitespace-nowrap">${row.hari}</td>
-                            <td class="py-2 px-3 text-right whitespace-nowrap">
-                                <span class="px-2 py-0.5 rounded-full text-[11px] ${badgeClass}">${formatNumber(row.terjual)}</span>
-                            </td>
-                            <td class="py-2 px-3 text-right font-medium text-slate-700 whitespace-nowrap">${formatRupiah(row.pemasukan)}</td>
-                            <td class="py-2 px-3 text-right text-slate-500 whitespace-nowrap">${formatRupiah(row.modal)}</td>
-                            <td class="py-2 px-3 text-right font-bold ${row.untung >= 0 ? 'text-emerald-600' : 'text-rose-600'} whitespace-nowrap">${formatRupiah(row.untung)}</td>
-                            <td class="py-2 px-3 text-right font-semibold text-[#1e3a8a] whitespace-nowrap">${formatRupiah(row.untung_berjalan)}</td>
-                            <td class="py-2 px-3 text-center whitespace-nowrap">
-                                <div class="inline-flex items-center gap-1">
-                                    <button onclick="openInputModal('${row.tanggal}')" title="Edit catatan ini" class="p-1 rounded hover:bg-blue-100 text-slate-500 hover:text-[#1e3a8a] transition cursor-pointer">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                        </svg>
-                                    </button>
-                                    <button onclick="openDeleteConfirmModal('${row.tanggal}')" title="Hapus catatan ini" class="p-1 rounded hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition cursor-pointer">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }
-
-            renderPaginationControls(totalPages);
-        }
-
-        function renderPaginationControls(totalPages) {
-            const container = document.getElementById('pagination-controls');
-            if (totalPages <= 1) {
-                container.innerHTML = '';
-                return;
-            }
-
-            let html = `
-                <button onclick="goToPage(${Math.max(1, state.currentPage - 1)})" ${state.currentPage === 1 ? 'disabled' : ''} class="px-2 py-1 rounded border border-slate-200 text-xs font-medium ${state.currentPage === 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-700 hover:bg-slate-100 cursor-pointer'}">
-                    ‹ Prev
-                </button>
-            `;
-
-            for (let p = 1; p <= totalPages; p++) {
-                if (p === 1 || p === totalPages || Math.abs(p - state.currentPage) <= 1) {
-                    const activeCls = p === state.currentPage
-                        ? 'bg-[#1e3a8a] text-white border-[#1e3a8a]'
-                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100';
-                    html += `<button onclick="goToPage(${p})" class="px-2.5 py-1 rounded border text-xs font-semibold transition cursor-pointer ${activeCls}">${p}</button>`;
-                } else if (Math.abs(p - state.currentPage) === 2) {
-                    html += `<span class="px-1 text-slate-400 text-xs">...</span>`;
-                }
-            }
-
-            html += `
-                <button onclick="goToPage(${Math.min(totalPages, state.currentPage + 1)})" ${state.currentPage === totalPages ? 'disabled' : ''} class="px-2 py-1 rounded border border-slate-200 text-xs font-medium ${state.currentPage === totalPages ? 'text-slate-300 cursor-not-allowed' : 'text-slate-700 hover:bg-slate-100 cursor-pointer'}">
-                    Next ›
-                </button>
-            `;
-            container.innerHTML = html;
-        }
-
-        // ==================== MASTER DASHBOARD RENDER ====================
-        function updateDashboard() {
-            const filtered = getFilteredData();
-            updateKPICards(filtered);
-            updateTrendChart(filtered);
-            updateMonthlyChart(filtered);
-            updateDayOfWeekChart(filtered);
-            updateTable(filtered);
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            loadRecordsFromStorage();
-            syncDateBoundsAndMonthSlicers(true);
-            updateDashboard();
-        });
-    </script>
+      };
+      reader.readAsArrayBuffer(file);
+      e.target.value = '';
+    });
+
+    // Reset to Initial Data
+    document.getElementById('btnResetDefault').addEventListener('click', () => {
+      if (!confirm('Kembalikan semua catatan ke data awal (13 Agu - 12 Nov 2026)?')) return;
+      records = [...INITIAL_DATA];
+      settings = { harga: 1000, modal: 200000 };
+      document.getElementById('settingHarga').value = 1000;
+      document.getElementById('settingModal').value = 200000;
+      saveState();
+      selectedMonth = 'ALL';
+      selectedDay = 'ALL';
+      document.getElementById('dayFilter').value = 'ALL';
+      setDefaultNextDate();
+      updateLivePreview();
+      renderAll();
+      showToast('Data dikembalikan ke catatan awal');
+    });
+
+    // Initialize
+    loadState();
+    updateLivePreview();
+    renderAll();
+  </script>
 </body>
 </html>
