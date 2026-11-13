@@ -426,7 +426,6 @@ tr:hover td{background:#FAF5F0}
           <input type="file" id="excelUpload" accept=".xlsx,.xls" style="display:none" />
         </label>
         <button class="btn" id="btnExportExcel">Simpan ke Excel</button>
-        <button class="btn" id="btnSample" title="Isi dengan data contoh 13 Agu - 12 Nov 2026">Isi Data Contoh</button>
         <button class="btn" id="btnKeluar">Keluar</button>
       </div>
     </div>
@@ -556,10 +555,6 @@ const SUPABASE_KEY = "sb_publishable_iaQGxPfEWrRBxpLN7qwAJQ_8kR0Cy0s";
 const TABEL = 'penjualan_harian';
 let sb = null;
 try { sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch (e) {}
-
-// Data contoh: jumlah terjual per hari mulai 13 Agu 2026 (92 hari)
-const SAMPLE_START = '2026-08-13';
-const SAMPLE = [541,519,550,583,506,509,568,512,546,574,507,564,527,504,511,555,553,508,530,511,570,554,507,572,515,528,580,580,574,507,573,574,550,506,528,505,571,517,537,553,518,569,515,573,539,571,587,523,513,574,573,581,524,547,512,570,591,508,572,507,579,526,563,587,568,554,599,540,559,574,558,546,538,531,523,589,599,531,510,573,538,567,563,543,593,557,536,577,509,515,565,553];
 
 let records = [];
 let settings = { harga: 1000, modal: 200000 };
@@ -1080,29 +1075,6 @@ $('excelUpload').addEventListener('change', (e) => {
   };
   reader.readAsArrayBuffer(file);
   e.target.value = '';
-});
-
-$('btnSample').addEventListener('click', async () => {
-  if (!confirm('Isi database dengan 92 hari data contoh (13 Agu - 12 Nov 2026)?')) return;
-  const [y, m, d] = SAMPLE_START.split('-').map(Number);
-  const rows = SAMPLE.map((terjual, idx) => ({
-    tanggal: isoDari(new Date(y, m - 1, d + idx)),
-    terjual,
-    harga: 1000,
-    modal: 200000
-  }));
-  try {
-    await upsertBanyak(rows);
-    await muatData();
-    selectedMonth = 'ALL';
-    selectedDay = 'ALL';
-    $('dayFilter').value = 'ALL';
-    setDefaultNextDate();
-    renderAll();
-    showToast('92 hari data contoh berhasil dimasukkan');
-  } catch (err) {
-    showToast('Gagal memasukkan data contoh.');
-  }
 });
 
 // ===== Inisialisasi Sesi Login Supabase =====
