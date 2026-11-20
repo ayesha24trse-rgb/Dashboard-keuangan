@@ -12,28 +12,30 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js"></script>
 <style>
 :root{
-  /* Palet Dusty Pink & Krem Natural Elegan */
-  --bg-page:#F8F4EF;          /* Krem natural hangat */
-  --bg-card:#FFFDFB;          /* Putih gading lembut */
-  --bg-subtle:#F1EAE2;        /* Krem pasir halus */
-  --border-soft:#E6DDD4;      /* Garis batas krem taupe */
-  --text-primary:#3C3032;     /* Cokelat tua hangat (ramah di mata) */
-  --text-secondary:#6F5E61;   /* Mauve keabu-abuan lembut */
-  --text-muted:#9B8B8E;       /* Abu-abu mawar redup */
+  /* Palet Merah & Kuning Hangat Elegan */
+  --bg-page:#FFFDF5;          /* Latar kuning gading lembut */
+  --bg-card:#FFFFFF;          /* Putih bersih untuk kartu */
+  --bg-subtle:#FEF6D8;        /* Kuning lembut halus */
+  --border-soft:#F3DEC0;      /* Garis batas kuning keemasan */
+  --text-primary:#381818;     /* Merah kecokelatan gelap (nyaman dibaca) */
+  --text-secondary:#70443B;   /* Cokelat kemerahan hangat */
+  --text-muted:#9E766B;       /* Redup hangat */
 
-  /* Dusty Pink Natural */
-  --pink-main:#B96D79;        /* Dusty pink utama */
-  --pink-hover:#9E5460;       /* Dusty rose saat disentuh */
-  --pink-soft:#F6EAEB;        /* Latar blush lembut */
-  --pink-border:#E4C8CC;      /* Bingkai dusty pink halus */
+  /* Merah Utama */
+  --red-main:#C62828;         /* Merah tegas */
+  --red-hover:#A31C1C;        /* Merah tua saat disentuh */
+  --red-soft:#FDECEC;         /* Latar merah muda pucat */
+  --red-border:#F5BDBD;       /* Bingkai merah halus */
 
-  /* Krem & Taupe Pendukung */
-  --cream-accent:#D8C6B8;     /* Krem hangat untuk pembanding */
-  --taupe-dark:#7D685D;       /* Taupe natural */
+  /* Kuning Emas Pendukung */
+  --yellow-main:#F59E0B;      /* Kuning keemasan cerah */
+  --yellow-soft:#FEF3C7;      /* Latar kuning lembut */
+  --yellow-border:#FCD34D;    /* Bingkai kuning */
+  --yellow-dark:#92400E;      /* Kuning kecokelatan untuk teks */
 
-  --danger:#B84A4A;
-  --shadow-sm:0 2px 12px rgba(60,48,50,.04);
-  --shadow-md:0 10px 28px rgba(185,109,121,.08);
+  --danger:#B91C1C;
+  --shadow-sm:0 2px 12px rgba(198,40,40,.05);
+  --shadow-md:0 10px 28px rgba(198,40,40,.10);
   --radius-lg:20px;
   --radius-md:14px;
   --radius-sm:10px;
@@ -42,7 +44,7 @@
 [hidden]{display:none!important}
 body{
   font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-  background:linear-gradient(180deg,#F5E9EA 0%,#F8F4EF 300px);
+  background:linear-gradient(180deg,#FEF0D5 0%,#FFFDF5 300px);
   color:var(--text-primary);
   line-height:1.6;
   font-size:16px;
@@ -52,9 +54,9 @@ body{
 
 /* Header */
 .topbar{
-  background:rgba(255,253,251,.93);
+  background:rgba(255,255,255,.95);
   backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--border-soft);
+  border-bottom:2px solid var(--yellow-border);
   padding:18px 0;
   position:sticky;
   top:0;
@@ -66,8 +68,8 @@ body{
   width:48px;
   height:48px;
   border-radius:15px;
-  background:linear-gradient(135deg,#C87F8A 0%,#A95E6A 100%);
-  color:#FFFDFB;
+  background:linear-gradient(135deg,#D32F2F 0%,#F59E0B 100%);
+  color:#FFFFFF;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -75,9 +77,9 @@ body{
   font-size:20px;
   letter-spacing:-.5px;
   flex-shrink:0;
-  box-shadow:0 4px 14px rgba(185,109,121,.22);
+  box-shadow:0 4px 14px rgba(198,40,40,.25);
 }
-.brand-text h1{font-size:20px;font-weight:800;letter-spacing:-.3px;color:var(--text-primary)}
+.brand-text h1{font-size:20px;font-weight:800;letter-spacing:-.3px;color:var(--red-main)}
 .brand-text p{font-size:14px;color:var(--text-secondary)}
 .topbar-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 
@@ -98,36 +100,36 @@ body{
   cursor:pointer;
   transition:all .18s ease;
 }
-.btn:hover{background:var(--pink-soft);border-color:var(--pink-border);color:var(--pink-hover)}
+.btn:hover{background:var(--yellow-soft);border-color:var(--yellow-main);color:var(--red-hover)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn-primary{
-  background:linear-gradient(135deg,#C37682 0%,#AA5D69 100%);
-  color:#FFFDFB;
-  border-color:var(--pink-main);
-  box-shadow:0 4px 12px rgba(185,109,121,.2);
+  background:linear-gradient(135deg,#D32F2F 0%,#B71C1C 100%);
+  color:#FFFFFF;
+  border-color:var(--red-main);
+  box-shadow:0 4px 12px rgba(198,40,40,.24);
 }
 .btn-primary:hover{
-  background:linear-gradient(135deg,#B0636F 0%,#954B57 100%);
-  border-color:var(--pink-hover);
-  color:#FFFDFB;
+  background:linear-gradient(135deg,#B71C1C 0%,#8E1313 100%);
+  border-color:var(--red-hover);
+  color:#FFFFFF;
 }
 
 .section{margin-top:26px}
 .section-title{font-size:17.5px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .section-subtitle{
   font-size:13.5px;
-  font-weight:600;
-  color:var(--pink-hover);
-  background:var(--pink-soft);
+  font-weight:700;
+  color:var(--yellow-dark);
+  background:var(--yellow-soft);
   padding:4px 14px;
   border-radius:999px;
-  border:1px solid var(--pink-border);
+  border:1px solid var(--yellow-border);
 }
 
 /* Kartu Input Utama */
 .quick-entry-card{
   background:var(--bg-card);
-  border:1px solid var(--pink-border);
+  border:1px solid var(--border-soft);
   border-radius:var(--radius-lg);
   padding:24px;
   box-shadow:var(--shadow-md);
@@ -141,7 +143,7 @@ body{
   left:0;
   width:6px;
   height:100%;
-  background:linear-gradient(180deg,#C87F8A 0%,#D8C6B8 100%);
+  background:linear-gradient(180deg,#C62828 0%,#F59E0B 100%);
 }
 .entry-grid{display:grid;grid-template-columns:1.1fr 1.4fr 1.3fr auto;gap:18px;align-items:end;margin-top:14px}
 .field-group label{display:block;font-size:14px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
@@ -158,26 +160,26 @@ body{
   border-radius:var(--radius-sm);
   transition:border-color .15s ease;
 }
-.input-control:focus{outline:none;border-color:var(--pink-main);background:#FFFDFB}
+.input-control:focus{outline:none;border-color:var(--red-main);background:#FFFFFF}
 .stepper-wrap{display:flex;align-items:center;gap:8px}
 .btn-step{
   height:48px;
   min-width:54px;
   padding:0 12px;
   border-radius:var(--radius-sm);
-  border:1.5px solid var(--border-soft);
-  background:var(--bg-subtle);
-  color:var(--text-primary);
+  border:1.5px solid var(--yellow-border);
+  background:var(--yellow-soft);
+  color:var(--yellow-dark);
   font-family:inherit;
   font-size:15px;
   font-weight:700;
   cursor:pointer;
   transition:all .15s;
 }
-.btn-step:hover{background:var(--pink-soft);border-color:var(--pink-border);color:var(--pink-hover)}
+.btn-step:hover{background:#FDE68A;border-color:var(--yellow-main);color:var(--red-hover)}
 .live-preview-box{
-  background:var(--pink-soft);
-  border:1px solid var(--pink-border);
+  background:var(--red-soft);
+  border:1px solid var(--red-border);
   border-radius:var(--radius-sm);
   padding:10px 16px;
   height:48px;
@@ -186,8 +188,8 @@ body{
   justify-content:space-between;
   gap:12px;
 }
-.live-preview-box span{font-size:14px;color:var(--pink-hover);font-weight:600}
-.live-preview-box strong{font-size:18px;color:var(--pink-hover);font-weight:800}
+.live-preview-box span{font-size:14px;color:var(--red-hover);font-weight:600}
+.live-preview-box strong{font-size:18px;color:var(--red-main);font-weight:800}
 .btn-save-large{height:48px;padding:0 24px;font-size:15px;font-weight:700;border-radius:var(--radius-sm)}
 .settings-bar{
   margin-top:16px;
@@ -241,23 +243,23 @@ body{
   cursor:pointer;
   transition:all .15s ease;
 }
-.pill-btn:hover{border-color:var(--pink-main);color:var(--pink-hover)}
+.pill-btn:hover{border-color:var(--red-main);color:var(--red-main)}
 .pill-btn.active{
-  background:var(--pink-main);
-  color:#FFFDFB;
-  border-color:var(--pink-main);
-  box-shadow:0 3px 10px rgba(185,109,121,.22);
+  background:var(--red-main);
+  color:#FFFFFF;
+  border-color:var(--red-main);
+  box-shadow:0 3px 10px rgba(198,40,40,.24);
 }
 .day-select{
   height:38px;
   padding:0 14px;
   border-radius:999px;
-  border:1px solid var(--border-soft);
-  background:var(--bg-subtle);
+  border:1px solid var(--yellow-border);
+  background:var(--yellow-soft);
   font-family:inherit;
   font-size:14px;
   font-weight:600;
-  color:var(--text-primary);
+  color:var(--yellow-dark);
   cursor:pointer;
 }
 
@@ -274,19 +276,20 @@ body{
   justify-content:space-between;
 }
 .kpi-card.highlight{
-  background:linear-gradient(145deg,#B96D79 0%,#9E5460 100%);
-  color:#FFFDFB;
+  background:linear-gradient(145deg,#C62828 0%,#991B1B 100%);
+  color:#FFFFFF;
   border:none;
-  box-shadow:0 10px 24px rgba(185,109,121,.22);
+  box-shadow:0 10px 24px rgba(198,40,40,.25);
 }
 .kpi-label{font-size:14px;font-weight:600;color:var(--text-secondary);margin-bottom:8px}
-.kpi-card.highlight .kpi-label{color:#F8E6E8}
+.kpi-card.highlight .kpi-label{color:#FDE68A}
 .kpi-value{font-size:26px;font-weight:800;letter-spacing:-.6px;line-height:1.2;margin-bottom:8px;color:var(--text-primary)}
-.kpi-card.highlight .kpi-value{color:#FFFDFB}
-.kpi-card:nth-child(2) .kpi-value{color:var(--pink-hover)}
-.kpi-card:nth-child(4) .kpi-value{color:var(--taupe-dark)}
+.kpi-card.highlight .kpi-value{color:#FFFFFF}
+.kpi-card:nth-child(2) .kpi-value{color:var(--red-main)}
+.kpi-card:nth-child(3) .kpi-value{color:#B45309}
+.kpi-card:nth-child(4) .kpi-value{color:var(--yellow-dark)}
 .kpi-note{font-size:13px;color:var(--text-muted);font-weight:500}
-.kpi-card.highlight .kpi-note{color:#F2D5D9}
+.kpi-card.highlight .kpi-note{color:#FECACA}
 
 /* Grafik & Sorotan */
 .charts-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
@@ -296,8 +299,8 @@ body{
 .card-header p{font-size:13.5px;color:var(--text-secondary);margin-top:2px}
 .chart-wrapper{position:relative;height:270px;width:100%}
 .insight-strip{
-  background:linear-gradient(90deg,#F6EAEB 0%,#F1EAE2 100%);
-  border:1px solid var(--pink-border);
+  background:linear-gradient(90deg,#FEF3C7 0%,#FDECEC 100%);
+  border:1px solid var(--yellow-border);
   border-radius:var(--radius-md);
   padding:16px 20px;
   display:flex;
@@ -308,7 +311,7 @@ body{
   font-size:14.5px;
   color:var(--text-primary);
 }
-.insight-strip strong{font-weight:700;color:var(--pink-hover)}
+.insight-strip strong{font-weight:700;color:var(--red-main)}
 
 /* Tabel Buku Catatan */
 .table-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
@@ -323,31 +326,31 @@ body{
   color:var(--text-primary);
   min-width:250px;
 }
-.search-input:focus{outline:none;border-color:var(--pink-main);background:#FFFDFB}
+.search-input:focus{outline:none;border-color:var(--red-main);background:#FFFFFF}
 .table-responsive{overflow-x:auto}
 table{width:100%;border-collapse:collapse;text-align:left}
 th{
   font-size:13px;
   font-weight:700;
-  color:var(--pink-hover);
+  color:var(--red-hover);
   text-transform:uppercase;
   letter-spacing:.4px;
   padding:13px 14px;
-  border-bottom:2px solid var(--pink-border);
-  background:var(--pink-soft);
+  border-bottom:2px solid var(--yellow-border);
+  background:var(--yellow-soft);
 }
 td{padding:14px;border-bottom:1px solid var(--border-soft);font-size:15px}
-tr:hover td{background:#FAF5F0}
+tr:hover td{background:#FFF9EB}
 .badge-day{
   display:inline-block;
   padding:4px 10px;
   border-radius:8px;
   font-size:13px;
   font-weight:600;
-  background:var(--bg-subtle);
-  color:var(--text-secondary);
+  background:var(--yellow-soft);
+  color:var(--yellow-dark);
 }
-.text-profit{color:var(--pink-hover);font-weight:700}
+.text-profit{color:var(--red-main);font-weight:700}
 .action-btns{display:flex;gap:6px}
 .btn-mini{
   padding:6px 12px;
@@ -355,13 +358,13 @@ tr:hover td{background:#FAF5F0}
   font-weight:600;
   border-radius:8px;
   border:1px solid var(--border-soft);
-  background:#FFFDFB;
+  background:#FFFFFF;
   color:var(--text-primary);
   cursor:pointer;
   font-family:inherit;
 }
-.btn-mini.edit:hover{background:var(--bg-subtle);border-color:var(--taupe-dark);color:var(--text-primary)}
-.btn-mini.del:hover{background:#FBEAEA;border-color:var(--danger);color:var(--danger)}
+.btn-mini.edit:hover{background:var(--yellow-soft);border-color:var(--yellow-main);color:var(--yellow-dark)}
+.btn-mini.del:hover{background:var(--red-soft);border-color:var(--danger);color:var(--danger)}
 .pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;font-size:14px;color:var(--text-secondary)}
 
 /* Notifikasi Toast & Halaman Login */
@@ -369,13 +372,14 @@ tr:hover td{background:#FAF5F0}
   position:fixed;
   bottom:24px;
   right:24px;
-  background:var(--text-primary);
-  color:#FFFDFB;
+  background:var(--red-main);
+  color:#FFFFFF;
+  border:1px solid var(--yellow-border);
   padding:14px 20px;
   border-radius:var(--radius-md);
   font-size:14px;
   font-weight:600;
-  box-shadow:0 10px 25px rgba(60,48,50,.22);
+  box-shadow:0 10px 25px rgba(198,40,40,.28);
   transform:translateY(100px);
   opacity:0;
   transition:all .25s ease;
@@ -436,657 +440,4 @@ tr:hover td{background:#FAF5F0}
       <div class="quick-entry-card">
         <div class="section-title" style="margin-bottom:4px;">
           <span id="formTitle">Catat Hasil Jualan Hari Ini</span>
-          <span class="section-subtitle">Tersimpan aman di database online</span>
-        </div>
-        <form id="salesForm" class="entry-grid">
-          <div class="field-group">
-            <label for="inputTanggal">Tanggal Jualan</label>
-            <input type="date" id="inputTanggal" class="input-control" required />
-          </div>
-          <div class="field-group">
-            <label for="inputTerjual">Jumlah Gorengan Laku (biji)</label>
-            <div class="stepper-wrap">
-              <button type="button" class="btn-step" data-step="-10">-10</button>
-              <input type="number" id="inputTerjual" class="input-control" value="550" min="0" step="1" required style="text-align:center;" />
-              <button type="button" class="btn-step" data-step="10">+10</button>
-            </div>
-          </div>
-          <div class="field-group">
-            <label>Perkiraan Untung Bersih</label>
-            <div class="live-preview-box"><span>Untung:</span><strong id="previewUntung">Rp350.000</strong></div>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <button type="submit" class="btn btn-primary btn-save-large" id="btnSubmitForm">Simpan Catatan</button>
-            <button type="button" class="btn btn-save-large" id="btnCancelEdit" style="display:none;">Batal</button>
-          </div>
-        </form>
-        <div class="settings-bar">
-          <div>Aturan hitungan saat ini (ubah jika harga/modal berubah):</div>
-          <div style="display:flex; flex-wrap:wrap; gap:16px;">
-            <label class="inline-setting">Harga per biji: <strong>Rp</strong>
-              <input type="number" id="settingHarga" value="1000" min="100" step="100" /></label>
-            <label class="inline-setting">Modal per hari: <strong>Rp</strong>
-              <input type="number" id="settingModal" value="200000" min="0" step="5000" /></label>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="filter-bar">
-        <div class="pill-group" id="monthPills"></div>
-        <div>
-          <select id="dayFilter" class="day-select" aria-label="Pilih Hari">
-            <option value="ALL">Semua Hari (Senin - Minggu)</option>
-            <option value="Senin">Khusus Hari Senin</option>
-            <option value="Selasa">Khusus Hari Selasa</option>
-            <option value="Rabu">Khusus Hari Rabu</option>
-            <option value="Kamis">Khusus Hari Kamis</option>
-            <option value="Jumat">Khusus Hari Jumat</option>
-            <option value="Sabtu">Khusus Hari Sabtu</option>
-            <option value="Minggu">Khusus Hari Minggu</option>
-          </select>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="kpi-grid">
-        <div class="kpi-card highlight"><div class="kpi-label">Total Untung Bersih</div><div class="kpi-value" id="kpiUntung">Rp0</div><div class="kpi-note" id="kpiUntungAvg">Rata-rata Rp0 / hari</div></div>
-        <div class="kpi-card"><div class="kpi-label">Total Uang Masuk (Omzet)</div><div class="kpi-value" id="kpiPemasukan">Rp0</div><div class="kpi-note" id="kpiMargin">Keuntungan bersih 0,0% dari omzet</div></div>
-        <div class="kpi-card"><div class="kpi-label">Total Modal Bahan</div><div class="kpi-value" id="kpiModal">Rp0</div><div class="kpi-note" id="kpiHari">Selama 0 hari berjualan</div></div>
-        <div class="kpi-card"><div class="kpi-label">Total Gorengan Terjual</div><div class="kpi-value" id="kpiTerjual">0 biji</div><div class="kpi-note" id="kpiTerjualAvg">Rata-rata 0 biji / hari</div></div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="insight-strip" id="insightStrip">
-        <span>Catatan: Minimal jualan <strong>200 biji/hari</strong> untuk balik modal.</span>
-        <span id="bestDayText">Belum ada data pada pilihan ini</span>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="charts-grid">
-        <div class="card-box">
-          <div class="card-header"><h3>Grafik Untung Harian</h3><p>Naik-turunnya keuntungan bersih setiap hari berjualan</p></div>
-          <div class="chart-wrapper"><canvas id="dailyChart"></canvas></div>
-        </div>
-        <div class="card-box">
-          <div class="card-header"><h3>Perbandingan Per Bulan</h3><p>Total untung bersih dibanding modal tiap bulan</p></div>
-          <div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="card-box">
-        <div class="table-controls">
-          <div>
-            <h3 style="font-size:17px; font-weight:700;">Buku Catatan Harian</h3>
-            <p style="font-size:13.5px; color:var(--text-secondary);">Klik "Ubah" jika ingin memperbaiki catatan tanggal tertentu</p>
-          </div>
-          <input type="text" id="searchInput" class="search-input" placeholder="Cari tanggal atau hari (misal: Minggu)..." />
-        </div>
-        <div class="table-responsive">
-          <table>
-            <thead><tr><th>Tanggal</th><th>Hari</th><th>Laku (Biji)</th><th>Uang Masuk</th><th>Modal</th><th>Untung Bersih</th><th>Aksi</th></tr></thead>
-            <tbody id="tableBody"></tbody>
-          </table>
-        </div>
-        <div class="pagination">
-          <span id="pageInfo">Menampilkan 0 - 0 dari 0 hari</span>
-          <div style="display:flex; gap:8px;">
-            <button class="btn" id="btnPrevPage">Sebelumnya</button>
-            <button class="btn" id="btnNextPage">Berikutnya</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-</div>
-
-<div class="toast" id="toast">Catatan berhasil disimpan</div>
-
-<script>
-// ===== Penghubung ke database Supabase =====
-const SUPABASE_URL = "https://kfdxtjkxgcjtnqqxoxou.supabase.co";
-const SUPABASE_KEY = "sb_publishable_iaQGxPfEWrRBxpLN7qwAJQ_8kR0Cy0s";
-const TABEL = 'penjualan_harian';
-let sb = null;
-try { sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch (e) {}
-
-let records = [];
-let settings = { harga: 1000, modal: 200000 };
-let selectedMonth = 'ALL';
-let selectedDay = 'ALL';
-let searchQuery = '';
-let currentPage = 1;
-const rowsPerPage = 10;
-let editingDate = null;
-let dailyChartInstance = null;
-let monthlyChartInstance = null;
-let daftar = false;
-
-const NAMA_HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-const NAMA_BULAN = {'01':'Januari','02':'Februari','03':'Maret','04':'April','05':'Mei','06':'Juni','07':'Juli','08':'Agustus','09':'September','10':'Oktober','11':'November','12':'Desember'};
-const $ = (id) => document.getElementById(id);
-
-function formatRupiah(num) {
-  const sign = num < 0 ? '-' : '';
-  return sign + 'Rp' + Math.abs(Math.round(num)).toLocaleString('id-ID');
-}
-function isoDari(dt) {
-  return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-}
-function formatTanggalIndo(isoStr) {
-  const [y, m, d] = isoStr.split('-');
-  return `${parseInt(d, 10)} ${NAMA_BULAN[m].slice(0, 3)} ${y}`;
-}
-function getNamaHari(isoStr) {
-  const [y, m, d] = isoStr.split('-').map(Number);
-  return NAMA_HARI[new Date(y, m - 1, d).getDay()];
-}
-function showToast(msg) {
-  const el = $('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2800);
-}
-
-// ===== Login =====
-function emailDari(hp) { return hp + '@nasabah-catatan.com'; }
-function terjemah(m) {
-  m = (m || '').toLowerCase();
-  if (m.indexOf('invalid login') > -1) return 'Nomor HP atau PIN salah.';
-  if (m.indexOf('already registered') > -1) return 'Nomor HP ini sudah terdaftar. Silakan masuk.';
-  if (m.indexOf('rate limit') > -1 || m.indexOf('too many') > -1) return 'Terlalu banyak percobaan. Tunggu beberapa menit.';
-  return 'Terjadi masalah: ' + m;
-}
-function tampilLogin(pesan) {
-  $('viewLogin').hidden = false;
-  $('viewApp').hidden = true;
-  $('errL').textContent = pesan || '';
-}
-
-$('ganti').addEventListener('click', () => {
-  daftar = !daftar;
-  $('namaWrap').hidden = !daftar;
-  $('errL').textContent = '';
-  $('kirim').textContent = daftar ? 'Daftar' : 'Masuk';
-  $('ganti').textContent = daftar ? 'Sudah punya akun? Masuk' : 'Belum punya akun? Daftar';
-});
-
-$('kirim').addEventListener('click', async () => {
-  const e = $('errL');
-  e.textContent = '';
-  if (!sb) { e.textContent = 'Halaman belum siap. Muat ulang halaman ini.'; return; }
-  const hp = $('hp').value.replace(/\D/g, ''), pin = $('pin').value, nama = $('nama').value.trim();
-  if (hp.length < 9 || hp.length > 15) { e.textContent = 'Nomor HP belum benar.'; return; }
-  if (!/^\d{6}$/.test(pin)) { e.textContent = 'PIN harus 6 angka.'; return; }
-  if (daftar && !nama) { e.textContent = 'Isi nama Anda.'; return; }
-  try {
-    const res = daftar
-      ? await sb.auth.signUp({ email: emailDari(hp), password: pin, options: { data: { nama: nama } } })
-      : await sb.auth.signInWithPassword({ email: emailDari(hp), password: pin });
-    if (res.error) { e.textContent = terjemah(res.error.message); return; }
-    if (!res.data.session) { e.textContent = 'Pendaftaran belum selesai. Matikan Confirm email di pengaturan Supabase.'; return; }
-    $('pin').value = '';
-    await masukAplikasi(res.data.session);
-  } catch (x) { e.textContent = 'Tidak bisa terhubung. Periksa internet Anda.'; }
-});
-
-$('btnKeluar').addEventListener('click', async () => {
-  await sb.auth.signOut();
-  records = [];
-  tampilLogin();
-});
-
-// ===== Data (database) =====
-function dariDb(r) {
-  const pemasukan = r.terjual * r.harga;
-  const modal = Number(r.modal);
-  return { tanggal: r.tanggal, hari: getNamaHari(r.tanggal), terjual: r.terjual, harga: r.harga, pemasukan, modal, untung: pemasukan - modal };
-}
-
-async function muatData() {
-  let all = [], from = 0;
-  const size = 1000;
-  while (true) {
-    const r = await sb.from(TABEL).select('tanggal,terjual,harga,modal').order('tanggal', { ascending: true }).range(from, from + size - 1);
-    if (r.error) throw r.error;
-    all = all.concat(r.data);
-    if (r.data.length < size) break;
-    from += size;
-  }
-  records = all.map(dariDb);
-}
-
-async function upsertBanyak(rows) {
-  const map = new Map();
-  rows.forEach(r => map.set(r.tanggal, r));
-  const arr = [...map.values()];
-  for (let i = 0; i < arr.length; i += 500) {
-    const r = await sb.from(TABEL).upsert(arr.slice(i, i + 500), { onConflict: 'user_id,tanggal' });
-    if (r.error) throw r.error;
-  }
-}
-
-async function simpanPengaturan() {
-  try { await sb.auth.updateUser({ data: { harga: settings.harga, modal: settings.modal } }); } catch (e) {}
-}
-
-async function masukAplikasi(session) {
-  const meta = session.user.user_metadata || {};
-  settings = { harga: meta.harga || 1000, modal: meta.modal !== undefined ? meta.modal : 200000 };
-  $('settingHarga').value = settings.harga;
-  $('settingModal').value = settings.modal;
-  $('userName').textContent = meta.nama ? 'Halo, ' + meta.nama : 'Ringkasan untung, modal, dan penjualan harian usaha Anda';
-  $('viewLogin').hidden = true;
-  $('viewApp').hidden = false;
-  selectedMonth = 'ALL'; selectedDay = 'ALL'; $('dayFilter').value = 'ALL'; currentPage = 1;
-  try { await muatData(); }
-  catch (e) { records = []; showToast('Tidak bisa memuat data. Periksa internet Anda.'); }
-  setDefaultNextDate();
-  updateLivePreview();
-  renderAll();
-}
-
-function setDefaultNextDate() {
-  if (records.length === 0) { $('inputTanggal').value = isoDari(new Date()); return; }
-  const last = records[records.length - 1].tanggal;
-  const [y, m, d] = last.split('-').map(Number);
-  $('inputTanggal').value = isoDari(new Date(y, m - 1, d + 1));
-}
-
-function updateLivePreview() {
-  const terjual = parseInt($('inputTerjual').value, 10) || 0;
-  const harga = parseInt($('settingHarga').value, 10) || 1000;
-  const modal = parseInt($('settingModal').value, 10) || 0;
-  const untung = (terjual * harga) - modal;
-  const el = $('previewUntung');
-  el.textContent = formatRupiah(untung);
-  el.style.color = untung >= 0 ? '#9E5460' : '#B84A4A';
-}
-
-function getFilteredRecords() {
-  return records.filter(r => {
-    const bulanKey = r.tanggal.slice(0, 7);
-    if (selectedMonth !== 'ALL' && bulanKey !== selectedMonth) return false;
-    if (selectedDay !== 'ALL' && r.hari !== selectedDay) return false;
-    if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase();
-      if (!formatTanggalIndo(r.tanggal).toLowerCase().includes(q) && !r.hari.toLowerCase().includes(q) && !r.tanggal.includes(q)) return false;
-    }
-    return true;
-  });
-}
-
-function renderMonthPills() {
-  const container = $('monthPills');
-  const months = Array.from(new Set(records.map(r => r.tanggal.slice(0, 7)))).sort();
-  let html = `<button class="pill-btn ${selectedMonth === 'ALL' ? 'active' : ''}" data-month="ALL">Semua Bulan</button>`;
-  months.forEach(m => {
-    const [y, mo] = m.split('-');
-    html += `<button class="pill-btn ${selectedMonth === m ? 'active' : ''}" data-month="${m}">${NAMA_BULAN[mo]} ${y}</button>`;
-  });
-  container.innerHTML = html;
-  container.querySelectorAll('.pill-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      selectedMonth = btn.getAttribute('data-month');
-      currentPage = 1;
-      renderAll();
-    });
-  });
-}
-
-function renderKPIs(filtered) {
-  const totalUntung = filtered.reduce((a, r) => a + r.untung, 0);
-  const totalPemasukan = filtered.reduce((a, r) => a + r.pemasukan, 0);
-  const totalModal = filtered.reduce((a, r) => a + r.modal, 0);
-  const totalTerjual = filtered.reduce((a, r) => a + r.terjual, 0);
-  const count = filtered.length;
-  const avgUntung = count ? totalUntung / count : 0;
-  const avgTerjual = count ? Math.round(totalTerjual / count) : 0;
-  const marginPct = totalPemasukan ? ((totalUntung / totalPemasukan) * 100).toFixed(1).replace('.', ',') : '0,0';
-
-  $('kpiUntung').textContent = formatRupiah(totalUntung);
-  $('kpiUntungAvg').textContent = `Rata-rata ${formatRupiah(avgUntung)} / hari`;
-  $('kpiPemasukan').textContent = formatRupiah(totalPemasukan);
-  $('kpiMargin').textContent = `Keuntungan bersih ${marginPct}% dari omzet`;
-  $('kpiModal').textContent = formatRupiah(totalModal);
-  $('kpiHari').textContent = `Selama ${count} hari berjualan`;
-  $('kpiTerjual').textContent = `${totalTerjual.toLocaleString('id-ID')} biji`;
-  $('kpiTerjualAvg').textContent = `Rata-rata ${avgTerjual.toLocaleString('id-ID')} biji / hari`;
-
-  const bep = settings.harga > 0 ? Math.ceil(settings.modal / settings.harga) : 0;
-  $('insightStrip').children[0].innerHTML = `Catatan: Minimal jualan <strong>${bep.toLocaleString('id-ID')} biji/hari</strong> untuk balik modal.`;
-  if (count > 0) {
-    const best = [...filtered].sort((a, b) => b.terjual - a.terjual)[0];
-    $('bestDayText').innerHTML = `Hari paling laris: <strong>${formatTanggalIndo(best.tanggal)} (${best.terjual} biji)</strong>`;
-  } else {
-    $('bestDayText').innerHTML = 'Belum ada data pada pilihan ini';
-  }
-}
-
-function renderCharts(filtered) {
-  const sorted = [...filtered].sort((a, b) => a.tanggal.localeCompare(b.tanggal));
-  if (dailyChartInstance) dailyChartInstance.destroy();
-  dailyChartInstance = new Chart($('dailyChart').getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: sorted.map(r => formatTanggalIndo(r.tanggal)),
-      datasets: [{
-        label: 'Untung Bersih (Rp)',
-        data: sorted.map(r => r.untung),
-        borderColor: '#B96D79',
-        backgroundColor: 'rgba(185, 109, 121, 0.12)',
-        borderWidth: 2.5,
-        pointRadius: sorted.length > 40 ? 2 : 4,
-        pointHoverRadius: 6,
-        pointBackgroundColor: '#9E5460',
-        pointBorderColor: '#FFFDFB',
-        pointBorderWidth: 1.5,
-        fill: true,
-        tension: 0.25
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#3C3032',
-          padding: 12,
-          titleFont: { family: 'Plus Jakarta Sans', size: 13 },
-          bodyFont: { family: 'Plus Jakarta Sans', size: 14, weight: 'bold' },
-          callbacks: { label: (c) => `Untung: ${formatRupiah(c.parsed.y)}` }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { maxTicksLimit: 7, font: { family: 'Plus Jakarta Sans', size: 12 }, color: '#6F5E61' } },
-        y: { beginAtZero: true, grid: { color: '#EFE7DF' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 12 }, color: '#6F5E61', callback: (v) => 'Rp' + (v / 1000) + ' rb' } }
-      }
-    }
-  });
-
-  const monthMap = {};
-  records.filter(r => selectedDay === 'ALL' || r.hari === selectedDay).forEach(r => {
-    const key = r.tanggal.slice(0, 7);
-    if (!monthMap[key]) monthMap[key] = { untung: 0, modal: 0 };
-    monthMap[key].untung += r.untung;
-    monthMap[key].modal += r.modal;
-  });
-  const monthKeys = Object.keys(monthMap).sort();
-  if (monthlyChartInstance) monthlyChartInstance.destroy();
-  monthlyChartInstance = new Chart($('monthlyChart').getContext('2d'), {
-    type: 'bar',
-    data: {
-      labels: monthKeys.map(k => { const [y, m] = k.split('-'); return NAMA_BULAN[m].slice(0, 3) + ' ' + y; }),
-      datasets: [
-        { label: 'Untung Bersih', data: monthKeys.map(k => monthMap[k].untung), backgroundColor: '#B96D79', borderRadius: 6 },
-        { label: 'Modal Bahan', data: monthKeys.map(k => monthMap[k].modal), backgroundColor: '#D8C6B8', borderRadius: 6 }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Plus Jakarta Sans', size: 13, weight: '600' }, color: '#3C3032', usePointStyle: true } },
-        tooltip: { backgroundColor: '#3C3032', padding: 12, callbacks: { label: (c) => `${c.dataset.label}: ${formatRupiah(c.parsed.y)}` } }
-      },
-      scales: {
-        x: { stacked: true, grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', size: 12 }, color: '#6F5E61' } },
-        y: { stacked: true, grid: { color: '#EFE7DF' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 12 }, color: '#6F5E61', callback: (v) => 'Rp' + (v / 1000000).toFixed(1) + ' jt' } }
-      }
-    }
-  });
-}
-
-function renderTable(filtered) {
-  const sortedDesc = [...filtered].sort((a, b) => b.tanggal.localeCompare(a.tanggal));
-  const totalRows = sortedDesc.length;
-  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
-  if (currentPage > totalPages) currentPage = totalPages;
-  const startIdx = (currentPage - 1) * rowsPerPage;
-  const pageSlice = sortedDesc.slice(startIdx, startIdx + rowsPerPage);
-  const tbody = $('tableBody');
-
-  if (pageSlice.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:28px; color:var(--text-secondary);">Belum ada catatan pada filter ini.</td></tr>`;
-  } else {
-    tbody.innerHTML = pageSlice.map(r => `
-      <tr>
-        <td><strong>${formatTanggalIndo(r.tanggal)}</strong></td>
-        <td><span class="badge-day">${r.hari}</span></td>
-        <td>${r.terjual.toLocaleString('id-ID')} biji</td>
-        <td>${formatRupiah(r.pemasukan)}</td>
-        <td>${formatRupiah(r.modal)}</td>
-        <td class="text-profit">${formatRupiah(r.untung)}</td>
-        <td>
-          <div class="action-btns">
-            <button class="btn-mini edit" onclick="startEdit('${r.tanggal}')">Ubah</button>
-            <button class="btn-mini del" onclick="deleteRecord('${r.tanggal}')">Hapus</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  const showStart = totalRows === 0 ? 0 : startIdx + 1;
-  const showEnd = Math.min(startIdx + rowsPerPage, totalRows);
-  $('pageInfo').textContent = `Menampilkan ${showStart} - ${showEnd} dari ${totalRows} hari`;
-  $('btnPrevPage').disabled = currentPage <= 1;
-  $('btnNextPage').disabled = currentPage >= totalPages;
-}
-
-function renderAll() {
-  renderMonthPills();
-  const filtered = getFilteredRecords();
-  renderKPIs(filtered);
-  renderCharts(filtered);
-  renderTable(filtered);
-}
-
-// ===== Event Handler Form & Tombol =====
-$('salesForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const tanggal = $('inputTanggal').value;
-  const terjual = parseInt($('inputTerjual').value, 10) || 0;
-  const harga = parseInt($('settingHarga').value, 10) || 1000;
-  const modal = parseInt($('settingModal').value, 10) || 0;
-  const btn = $('btnSubmitForm');
-  btn.disabled = true;
-
-  try {
-    if (editingDate && editingDate !== tanggal) {
-      const delRes = await sb.from(TABEL).delete().eq('tanggal', editingDate);
-      if (delRes.error) throw delRes.error;
-    }
-
-    const upRes = await sb.from(TABEL).upsert({ tanggal, terjual, harga, modal }, { onConflict: 'user_id,tanggal' });
-    if (upRes.error) throw upRes.error;
-
-    await muatData();
-    showToast(editingDate ? `Catatan tanggal ${formatTanggalIndo(tanggal)} diperbarui` : `Catatan tanggal ${formatTanggalIndo(tanggal)} berhasil disimpan`);
-
-    editingDate = null;
-    $('formTitle').textContent = 'Catat Hasil Jualan Hari Ini';
-    btn.textContent = 'Simpan Catatan';
-    $('btnCancelEdit').style.display = 'none';
-
-    setDefaultNextDate();
-    updateLivePreview();
-    renderAll();
-  } catch (err) {
-    showToast('Gagal menyimpan ke database. Periksa koneksi internet.');
-  } finally {
-    btn.disabled = false;
-  }
-});
-
-window.startEdit = function(tanggal) {
-  const rec = records.find(r => r.tanggal === tanggal);
-  if (!rec) return;
-  editingDate = tanggal;
-  $('inputTanggal').value = rec.tanggal;
-  $('inputTerjual').value = rec.terjual;
-  $('formTitle').textContent = `Ubah Catatan Tanggal ${formatTanggalIndo(tanggal)}`;
-  $('btnSubmitForm').textContent = 'Simpan Perubahan';
-  $('btnCancelEdit').style.display = 'inline-flex';
-  updateLivePreview();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-$('btnCancelEdit').addEventListener('click', () => {
-  editingDate = null;
-  $('formTitle').textContent = 'Catat Hasil Jualan Hari Ini';
-  $('btnSubmitForm').textContent = 'Simpan Catatan';
-  $('btnCancelEdit').style.display = 'none';
-  setDefaultNextDate();
-  $('inputTerjual').value = 550;
-  updateLivePreview();
-});
-
-window.deleteRecord = async function(tanggal) {
-  if (!confirm(`Hapus catatan tanggal ${formatTanggalIndo(tanggal)}?`)) return;
-  try {
-    const res = await sb.from(TABEL).delete().eq('tanggal', tanggal);
-    if (res.error) throw res.error;
-    await muatData();
-    renderAll();
-    showToast('Catatan telah dihapus dari database');
-  } catch (err) {
-    showToast('Gagal menghapus catatan.');
-  }
-};
-
-document.querySelectorAll('.btn-step').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const step = parseInt(btn.getAttribute('data-step'), 10);
-    const input = $('inputTerjual');
-    input.value = Math.max(0, (parseInt(input.value, 10) || 0) + step);
-    updateLivePreview();
-  });
-});
-
-$('inputTerjual').addEventListener('input', updateLivePreview);
-
-$('settingHarga').addEventListener('change', async (e) => {
-  settings.harga = Math.max(100, parseInt(e.target.value, 10) || 1000);
-  updateLivePreview();
-  await simpanPengaturan();
-});
-
-$('settingModal').addEventListener('change', async (e) => {
-  settings.modal = Math.max(0, parseInt(e.target.value, 10) || 0);
-  updateLivePreview();
-  await simpanPengaturan();
-});
-
-$('dayFilter').addEventListener('change', (e) => {
-  selectedDay = e.target.value;
-  currentPage = 1;
-  renderAll();
-});
-
-$('searchInput').addEventListener('input', (e) => {
-  searchQuery = e.target.value;
-  currentPage = 1;
-  renderTable(getFilteredRecords());
-});
-
-$('btnPrevPage').addEventListener('click', () => {
-  if (currentPage > 1) { currentPage--; renderTable(getFilteredRecords()); }
-});
-
-$('btnNextPage').addEventListener('click', () => {
-  currentPage++;
-  renderTable(getFilteredRecords());
-});
-
-$('btnExportExcel').addEventListener('click', () => {
-  const sorted = [...records].sort((a, b) => a.tanggal.localeCompare(b.tanggal));
-  let running = 0;
-  const harianRows = sorted.map(r => {
-    running += r.untung;
-    return {
-      'Tanggal': r.tanggal,
-      'Hari': r.hari,
-      'Terjual (biji)': r.terjual,
-      'Pemasukan': r.pemasukan,
-      'Modal': r.modal,
-      'Untung': r.untung,
-      'Untung berjalan': running
-    };
-  });
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(harianRows), 'Harian');
-  XLSX.writeFile(wb, 'keuangan-gorengan-terbaru.xlsx');
-  showToast('File Excel berhasil diunduh');
-});
-
-$('excelUpload').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async function(evt) {
-    try {
-      const data = new Uint8Array(evt.target.result);
-      const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-      const sheetName = workbook.SheetNames.includes('Harian') ? 'Harian' : workbook.SheetNames[0];
-      const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-      const parsed = [];
-
-      rows.forEach(row => {
-        let rawDate = row['Tanggal'];
-        let isoDate = '';
-        if (rawDate instanceof Date) {
-          isoDate = isoDari(rawDate);
-        } else if (typeof rawDate === 'string' && rawDate.includes('-')) {
-          isoDate = rawDate.slice(0, 10);
-        }
-        const terjual = Number(row['Terjual (biji)'] ?? row['Terjual'] ?? 0);
-        const modal = Number(row['Modal'] ?? settings.modal);
-        const pemasukan = Number(row['Pemasukan'] ?? (terjual * settings.harga));
-        const harga = terjual > 0 ? Math.round(pemasukan / terjual) : settings.harga;
-
-        if (isoDate) {
-          parsed.push({ tanggal: isoDate, terjual, harga, modal });
-        }
-      });
-
-      if (parsed.length > 0) {
-        await upsertBanyak(parsed);
-        await muatData();
-        selectedMonth = 'ALL';
-        selectedDay = 'ALL';
-        $('dayFilter').value = 'ALL';
-        setDefaultNextDate();
-        renderAll();
-        showToast(`Berhasil menggabungkan ${parsed.length} hari ke database`);
-      } else {
-        alert('Format kolom di file Excel tidak terbaca. Pastikan ada kolom Tanggal dan Terjual (biji).');
-      }
-    } catch (err) {
-      alert('Gagal mengunggah data Excel ke database.');
-    }
-  };
-  reader.readAsArrayBuffer(file);
-  e.target.value = '';
-});
-
-// ===== Inisialisasi Sesi Login Supabase =====
-(async function init() {
-  if (!sb) { tampilLogin('Gagal memuat layanan database.'); return; }
-  const { data } = await sb.auth.getSession();
-  if (data && data.session) {
-    await masukAplikasi(data.session);
-  } else {
-    tampilLogin();
-  }
-})();
-</script>
-</body>
-</html>
+          <span class="section-subtitle">Tersimpan aman
