@@ -4,6 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Catatan Keuangan Usaha Gorengan</title>
+
+<!-- Pengaturan PWA agar bisa di-install di HP -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#B96D79">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kas Gorengan">
+<link rel="apple-touch-icon" href="icon.svg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,25 +21,19 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js"></script>
 <style>
 :root{
-  /* Palet Dusty Pink & Krem Natural Elegan */
-  --bg-page:#F8F4EF;          /* Krem natural hangat */
-  --bg-card:#FFFDFB;          /* Putih gading lembut */
-  --bg-subtle:#F1EAE2;        /* Krem pasir halus */
-  --border-soft:#E6DDD4;      /* Garis batas krem taupe */
-  --text-primary:#3C3032;     /* Cokelat tua hangat (ramah di mata) */
-  --text-secondary:#6F5E61;   /* Mauve keabu-abuan lembut */
-  --text-muted:#9B8B8E;       /* Abu-abu mawar redup */
-
-  /* Dusty Pink Natural */
-  --pink-main:#B96D79;        /* Dusty pink utama */
-  --pink-hover:#9E5460;       /* Dusty rose saat disentuh */
-  --pink-soft:#F6EAEB;        /* Latar blush lembut */
-  --pink-border:#E4C8CC;      /* Bingkai dusty pink halus */
-
-  /* Krem & Taupe Pendukung */
-  --cream-accent:#D8C6B8;     /* Krem hangat untuk pembanding */
-  --taupe-dark:#7D685D;       /* Taupe natural */
-
+  --bg-page:#F8F4EF;
+  --bg-card:#FFFDFB;
+  --bg-subtle:#F1EAE2;
+  --border-soft:#E6DDD4;
+  --text-primary:#3C3032;
+  --text-secondary:#6F5E61;
+  --text-muted:#9B8B8E;
+  --pink-main:#B96D79;
+  --pink-hover:#9E5460;
+  --pink-soft:#F6EAEB;
+  --pink-border:#E4C8CC;
+  --cream-accent:#D8C6B8;
+  --taupe-dark:#7D685D;
   --danger:#B84A4A;
   --shadow-sm:0 2px 12px rgba(60,48,50,.04);
   --shadow-md:0 10px 28px rgba(185,109,121,.08);
@@ -49,8 +52,6 @@ body{
   padding-bottom:64px;
 }
 .container{max-width:1120px;margin:0 auto;padding:0 20px}
-
-/* Header */
 .topbar{
   background:rgba(255,253,251,.93);
   backdrop-filter:blur(10px);
@@ -80,8 +81,6 @@ body{
 .brand-text h1{font-size:20px;font-weight:800;letter-spacing:-.3px;color:var(--text-primary)}
 .brand-text p{font-size:14px;color:var(--text-secondary)}
 .topbar-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-
-/* Tombol */
 .btn{
   display:inline-flex;
   align-items:center;
@@ -111,7 +110,6 @@ body{
   border-color:var(--pink-hover);
   color:#FFFDFB;
 }
-
 .section{margin-top:26px}
 .section-title{font-size:17.5px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .section-subtitle{
@@ -123,8 +121,6 @@ body{
   border-radius:999px;
   border:1px solid var(--pink-border);
 }
-
-/* Kartu Input Utama */
 .quick-entry-card{
   background:var(--bg-card);
   border:1px solid var(--pink-border);
@@ -214,8 +210,6 @@ body{
   background:var(--bg-page);
   color:var(--text-primary);
 }
-
-/* Filter Bulan & Hari */
 .filter-bar{
   display:flex;
   flex-wrap:wrap;
@@ -260,8 +254,6 @@ body{
   color:var(--text-primary);
   cursor:pointer;
 }
-
-/* Kartu KPI */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .kpi-card{
   background:var(--bg-card);
@@ -287,8 +279,6 @@ body{
 .kpi-card:nth-child(4) .kpi-value{color:var(--taupe-dark)}
 .kpi-note{font-size:13px;color:var(--text-muted);font-weight:500}
 .kpi-card.highlight .kpi-note{color:#F2D5D9}
-
-/* Grafik & Sorotan */
 .charts-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
 .card-box{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--shadow-sm)}
 .card-header{margin-bottom:16px}
@@ -309,8 +299,6 @@ body{
   color:var(--text-primary);
 }
 .insight-strip strong{font-weight:700;color:var(--pink-hover)}
-
-/* Tabel Buku Catatan */
 .table-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 .search-input{
   height:42px;
@@ -363,8 +351,6 @@ tr:hover td{background:#FAF5F0}
 .btn-mini.edit:hover{background:var(--bg-subtle);border-color:var(--taupe-dark);color:var(--text-primary)}
 .btn-mini.del:hover{background:#FBEAEA;border-color:var(--danger);color:var(--danger)}
 .pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;font-size:14px;color:var(--text-secondary)}
-
-/* Notifikasi Toast & Halaman Login */
 .toast{
   position:fixed;
   bottom:24px;
@@ -392,7 +378,6 @@ tr:hover td{background:#FAF5F0}
 </head>
 <body>
 
-<!-- Halaman masuk -->
 <div id="viewLogin" class="login-wrap" hidden>
   <div class="quick-entry-card">
     <div class="brand" style="margin-bottom:6px">
@@ -549,7 +534,6 @@ tr:hover td{background:#FAF5F0}
 <div class="toast" id="toast">Catatan berhasil disimpan</div>
 
 <script>
-// ===== Penghubung ke database Supabase =====
 const SUPABASE_URL = "https://kfdxtjkxgcjtnqqxoxou.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iaQGxPfEWrRBxpLN7qwAJQ_8kR0Cy0s";
 const TABEL = 'penjualan_harian';
@@ -594,7 +578,6 @@ function showToast(msg) {
   setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-// ===== Login =====
 function emailDari(hp) { return hp + '@nasabah-catatan.com'; }
 function terjemah(m) {
   m = (m || '').toLowerCase();
@@ -642,7 +625,6 @@ $('btnKeluar').addEventListener('click', async () => {
   tampilLogin();
 });
 
-// ===== Data (database) =====
 function dariDb(r) {
   const pemasukan = r.terjual * r.harga;
   const modal = Number(r.modal);
@@ -889,7 +871,6 @@ function renderAll() {
   renderTable(filtered);
 }
 
-// ===== Event Handler Form & Tombol =====
 $('salesForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const tanggal = $('inputTanggal').value;
@@ -1077,7 +1058,6 @@ $('excelUpload').addEventListener('change', (e) => {
   e.target.value = '';
 });
 
-// ===== Inisialisasi Sesi Login Supabase =====
 (async function init() {
   if (!sb) { tampilLogin('Gagal memuat layanan database.'); return; }
   const { data } = await sb.auth.getSession();
@@ -1087,6 +1067,13 @@ $('excelUpload').addEventListener('change', (e) => {
     tampilLogin();
   }
 })();
+
+// Pendaftaran Service Worker untuk Install di HP
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
