@@ -1,0 +1,17 @@
+{
+  "name": "Catatan Keuangan Gorengan",
+  "short_name": "Kas Gorengan",
+  "start_url": "/Dashboard-keuangan/index.html",
+  "scope": "/Dashboard-keuangan/",
+  "display": "standalone",
+  "background_color": "#F8F4EF",
+  "theme_color": "#B96D79",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
